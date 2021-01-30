@@ -1,5 +1,9 @@
 # Pademelon
 
+[![Build Status](https://travis-ci.com/binary-person/pademelon.svg?branch=master)](https://travis-ci.com/github/binary-person/pademelon)
+![Version](https://img.shields.io/badge/version-not.yet.published-blue.svg)
+[![License: Apache-2.0](https://img.shields.io/github/license/binary-person/pademelon?1)](https://github.com/binary-person/pademelon/blob/master/LICENSE)
+
 > client request rewriting library for nodejs and the browser
 
 ## NOTE
