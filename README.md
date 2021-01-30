@@ -33,7 +33,7 @@ This package can be used in nodejs (for reversing rewritten URLs and rewriting j
 ```js
 const Pademelon = require('pademelon').Pademelon;
 const proxyPrefix = 'https://someproxysite.com/prefix/';
-const rewriter = new pademelon.Rewriter(proxyPrefix, options);
+const rewriter = new Pademelon(proxyPrefix, options);
 
 // "rewrite" is defined as rewriting the asset url/link from https://originalurl.com to https://someproxysite.com/https://originalurl.com
 // rewriting behavior can be defined in options
