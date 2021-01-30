@@ -102,4 +102,4 @@ Todo list:
   
   ## Contributing
 
-  Guidelines and development details can be found [here](CONTRIBUTING).
+  Guidelines and development details can be found [here](CONTRIBUTING.md).
