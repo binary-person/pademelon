@@ -102,7 +102,6 @@ Todo list:
   - history
   - Worker
   - postMessage
-  - navigator.sendBeacon
   
   ## Contributing
 
