@@ -1,0 +1,212 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>pademelon</title>
+	<meta name="description" content="Documentation for pademelon">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">pademelon</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>pademelon</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#pademelon" id="pademelon" style="color: inherit; text-decoration: none;">
+					<h1>Pademelon</h1>
+				</a>
+				<blockquote>
+					<p>client request rewriting library for nodejs and the browser</p>
+				</blockquote>
+				<a href="#note" id="note" style="color: inherit; text-decoration: none;">
+					<h2>NOTE</h2>
+				</a>
+				<p>This is a work-in-progress project. For more info, see <a href="#roadmap">Roadmap</a></p>
+				<a href="#purpose" id="purpose" style="color: inherit; text-decoration: none;">
+					<h2>Purpose</h2>
+				</a>
+				<p>This was primarily inspired by <a href="https://github.com/webrecorder/wombat">Wombat</a>, but it was built for recording (Pademelon <em>can</em> be used for recording, given custom (un)rewriteUrlIntercept functions that add a timestamp) and not proxying and had the following issues:</p>
+				<ol>
+					<li><code>location.href</code>/<code>location.pathname</code> is not rewritten, breaking websites that use react.</li>
+					<li><code>localStorage</code> is not stored in respective sites</li>
+					<li><code>modifiedFunc.toString</code> is not faked, so websites that validate functions are broken (or something, depends on the website)</li>
+					<li>Wombat was built for pyweb</li>
+					<li>nodejs will need to reimplement URL rewriting functions</li>
+					<li>Different licenses</li>
+				</ol>
+				<p>The goal of this project is to provide easy, understandable client rewriting tools to nodejs developers.</p>
+				<p>Primarily used as a URL proxy (like <code>https://someproxysite.com/https://destinationwebsite.com</code>).</p>
+				<p>Rewrites <code>XMLHttpRequest</code>, <code>fetch</code>, <code>history</code>, <code>postMessage</code>, <code>Worker</code>, and more (for the full list see <a href="#roadmap">Roadmap</a>, all to make sure everything is to be served under <code>https://someproxysite.com/https://destinationwebsite.com</code> and not <code>https://destinationwebsite.com</code>.</p>
+				<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+					<h2>Example</h2>
+				</a>
+				<p>This package can be used in nodejs (for reversing rewritten URLs and rewriting js/css files) or the browser.</p>
+				<a href="#server" id="server" style="color: inherit; text-decoration: none;">
+					<h3>Server</h3>
+				</a>
+				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Pademelon</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;pademelon&#039;</span><span style="color: #000000">).</span><span style="color: #001080">Pademelon</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">proxyPrefix</span><span style="color: #000000"> = </span><span style="color: #A31515">&#039;https://someproxysite.com/prefix/&#039;</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">rewriter</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">pademelon</span><span style="color: #000000">.</span><span style="color: #267F99">Rewriter</span><span style="color: #000000">(</span><span style="color: #001080">proxyPrefix</span><span style="color: #000000">, </span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+
+<span style="color: #008000">// &quot;rewrite&quot; is defined as rewriting the asset url/link from https://originalurl.com to https://someproxysite.com/https://originalurl.com</span>
+<span style="color: #008000">// rewriting behavior can be defined in options</span>
+
+<span style="color: #008000">// rewrite JavaScript files</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">rewrittenJS</span><span style="color: #000000"> = </span><span style="color: #001080">rewriter</span><span style="color: #000000">.</span><span style="color: #795E26">rewriteJavaScript</span><span style="color: #000000">(</span><span style="color: #001080">javascriptText</span><span style="color: #000000">);</span>
+<span style="color: #008000">// rewrite CSS files</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">rewrittenCSS</span><span style="color: #000000"> = </span><span style="color: #001080">rewriter</span><span style="color: #000000">.</span><span style="color: #795E26">rewriteCSS</span><span style="color: #000000">(</span><span style="color: #001080">cssText</span><span style="color: #000000">);</span>
+<span style="color: #008000">// rewrite HTML files</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">rewrittenHTML</span><span style="color: #000000"> = </span><span style="color: #001080">rewriter</span><span style="color: #000000">.</span><span style="color: #795E26">rewriteHTML</span><span style="color: #000000">(</span><span style="color: #001080">htmlText</span><span style="color: #000000">);</span>
+<span style="color: #008000">// rewrite absolute URLs</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">rewrittenAbsoluteUrl</span><span style="color: #000000"> = </span><span style="color: #001080">rewriter</span><span style="color: #000000">.</span><span style="color: #795E26">rewriteUrl</span><span style="color: #000000">(</span><span style="color: #001080">absoluteURL</span><span style="color: #000000">);</span>
+<span style="color: #008000">// reverse rewrite</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">unrewrittenAbsoluteUrl</span><span style="color: #000000"> = </span><span style="color: #001080">rewriter</span><span style="color: #000000">.</span><span style="color: #795E26">unrewriteUrl</span><span style="color: #000000">(</span><span style="color: #001080">rewrittenAbsoluteUrl</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#browser" id="browser" style="color: inherit; text-decoration: none;">
+					<h2>Browser</h2>
+				</a>
+				<pre><code class="language-html"><span style="color: #008000">&lt;!-- this isn&#039;t really necessary because injection is already taken care of by nodejs&#039;s rewriteHTML --&gt;</span>
+<span style="color: #800000">&lt;head&gt;</span>
+<span style="color: #000000">    </span><span style="color: #800000">&lt;script</span><span style="color: #000000FF"> </span><span style="color: #FF0000">src</span><span style="color: #000000FF">=</span><span style="color: #0000FF">&#039;pademelon.min.js&#039;</span><span style="color: #800000">&gt;&lt;/script&gt;</span>
+<span style="color: #000000">    </span><span style="color: #800000">&lt;script&gt;</span>
+<span style="color: #000000FF">        </span><span style="color: #001080">window</span><span style="color: #000000FF">.</span><span style="color: #001080">pademelonInstance</span><span style="color: #000000FF"> </span><span style="color: #000000">=</span><span style="color: #000000FF"> </span><span style="color: #0000FF">new</span><span style="color: #000000FF"> </span><span style="color: #267F99">Pademelon</span><span style="color: #000000FF">({</span>
+<span style="color: #000000FF">            </span><span style="color: #001080">hostname:</span><span style="color: #000000FF"> </span><span style="color: #001080">window</span><span style="color: #000000FF">.</span><span style="color: #001080">location</span><span style="color: #000000FF">.</span><span style="color: #001080">host</span><span style="color: #000000FF">,</span>
+<span style="color: #000000FF">            </span><span style="color: #001080">pathnamePrefix:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;/pademelonprefix/&quot;</span><span style="color: #000000FF">,</span>
+<span style="color: #000000FF">            </span><span style="color: #001080">windowProp:</span><span style="color: #000000FF"> </span><span style="color: #A31515">&quot;pademelonInstance&quot;</span>
+<span style="color: #000000FF">        });</span>
+<span style="color: #000000FF">        </span><span style="color: #001080">pademelonInstance</span><span style="color: #000000FF">.</span><span style="color: #795E26">init</span><span style="color: #000000FF">()</span>
+<span style="color: #000000FF">    </span><span style="color: #800000">&lt;/script&gt;</span>
+<span style="color: #800000">&lt;/head&gt;</span>
+</code></pre>
+				<a href="#roadmap" id="roadmap" style="color: inherit; text-decoration: none;">
+					<h2>Roadmap</h2>
+				</a>
+				<p>Following is the current functions that are implemented with their unit tests written.</p>
+				<ul>
+					<li>rewriteJS</li>
+					<li>rewriteCSS</li>
+					<li>rewriteHTML</li>
+					<li>rewriteUrl</li>
+					<li>unrewriteUrl</li>
+					<li>browser rewrite utils<ul>
+							<li>fakeToString</li>
+							<li>rewriteFunction</li>
+						</ul>
+					</li>
+					<li>rewrite window<ul>
+							<li>XMLHttpRequest</li>
+							<li>fetch, Request (tests not implemented yet)</li>
+							<li>(for more, see <a href="src/browser-rewrites/">browser-rewrites</a>)</li>
+						</ul>
+					</li>
+					<li>rewrite immutable objects<ul>
+							<li>(window/document).location</li>
+							<li>window</li>
+						</ul>
+					</li>
+				</ul>
+				<p>Todo list:</p>
+				<ul>
+					<li><p>add getter/setter rewriters</p>
+					</li>
+					<li><p>add more todo rewrite functions to todo rewrite list</p>
+					</li>
+					<li><p>todo rewrite list</p>
+						<ul>
+							<li>document atttribute getters/setters</li>
+							<li>implement MutationObserver</li>
+							<li>localStorage</li>
+							<li>sessionStorage</li>
+							<li>history</li>
+							<li>Worker</li>
+							<li>postMessage</li>
+						</ul>
+						<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+							<h2>Contributing</h2>
+						</a>
+						<p>Info about contributing can be found <a href="CONTRIBUTING">here</a>.</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Modules</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/nodejs_module.html">nodejs-<wbr>module</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

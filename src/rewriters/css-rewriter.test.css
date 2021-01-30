@@ -1,0 +1,30 @@
+@import 'https://import-single-quote.com';
+@import     '  https://import-extra-space.com  ';
+@import "https://import-double-quote.com";
+@import "https://import\'with-redundant-escaped-single-quote.com";
+@import "https://import\"with-escaped-double-quote.com";
+@import "https://import\\with-escaped-backslash.com";
+@import url(https://import-url-no-quote.com);
+@import     url(    https://import-url-extra-space.com    );
+@import url(https://import-url\)with-escaped-parentheses);
+@import url(https://import-url\"with-escaped-double-quote.com);
+@import url(https://import-url\\with-escaped-backslash.com);
+@import url('https://import-url-single-quote.com');
+@import     url(    '  https://import-url-quoted-extra-space.com  '    );
+@import url("https://import-url-double-quote.com");
+@import url("https://import-url\'with-redundant-escaped-single-quote.com");
+@import url("https://import-url\"with-escaped-double-quote.com");
+@import url("https://import-url\\with-escaped-backslash.com");
+body {
+    background-image: url(https://url-no-quote.com);
+    background-image:     url(    https://url-extra-space.com    );
+    background-image: url(https://url\"with-escaped-double-quote.com);
+    background-image: url(https://url\)with-escaped-parentheses);
+    background-image: url(https://url\\with-escaped-backslash.com);
+    background-image: url('https://url-single-quote.com');
+    background-image: url(    '  https://url-quoted-extra-space.com  '    );
+    background-image: url("https://url-double-quote.com");
+    background-image: url("https://url\'with-redundant-escaped-single-quote.com");
+    background-image: url("https://url\"with-escaped-double-quote.com");
+    background-image: url("https://url\\with-escaped-backslash.com");
+}

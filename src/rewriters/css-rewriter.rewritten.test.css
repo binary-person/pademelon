@@ -1,0 +1,30 @@
+@import '/prefixed/https://import-single-quote.com';
+@import     '/prefixed/  https://import-extra-space.com  ';
+@import "/prefixed/https://import-double-quote.com";
+@import "/prefixed/https://import'with-redundant-escaped-single-quote.com";
+@import "/prefixed/https://import\"with-escaped-double-quote.com";
+@import "/prefixed/https://import\\with-escaped-backslash.com";
+@import url(/prefixed/https://import-url-no-quote.com);
+@import     url(    /prefixed/https://import-url-extra-space.com    );
+@import url(/prefixed/https://import-url\)with-escaped-parentheses);
+@import url(/prefixed/https://import-url\"with-escaped-double-quote.com);
+@import url(/prefixed/https://import-url\\with-escaped-backslash.com);
+@import url('/prefixed/https://import-url-single-quote.com');
+@import     url(    '/prefixed/  https://import-url-quoted-extra-space.com  '    );
+@import url("/prefixed/https://import-url-double-quote.com");
+@import url("/prefixed/https://import-url'with-redundant-escaped-single-quote.com");
+@import url("/prefixed/https://import-url\"with-escaped-double-quote.com");
+@import url("/prefixed/https://import-url\\with-escaped-backslash.com");
+body {
+    background-image: url(/prefixed/https://url-no-quote.com);
+    background-image:     url(    /prefixed/https://url-extra-space.com    );
+    background-image: url(/prefixed/https://url\"with-escaped-double-quote.com);
+    background-image: url(/prefixed/https://url\)with-escaped-parentheses);
+    background-image: url(/prefixed/https://url\\with-escaped-backslash.com);
+    background-image: url('/prefixed/https://url-single-quote.com');
+    background-image: url(    '/prefixed/  https://url-quoted-extra-space.com  '    );
+    background-image: url("/prefixed/https://url-double-quote.com");
+    background-image: url("/prefixed/https://url'with-redundant-escaped-single-quote.com");
+    background-image: url("/prefixed/https://url\"with-escaped-double-quote.com");
+    background-image: url("/prefixed/https://url\\with-escaped-backslash.com");
+}
