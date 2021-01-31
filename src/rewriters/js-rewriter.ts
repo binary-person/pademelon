@@ -12,11 +12,18 @@
  * window object and immutable objects like window.location
  */
 const invalidWindowPropRegex = /[^a-z_]/i;
+const signatureJSRewrite = '/* begin pademelon js rewrite */';
 function jsRewriter(jsCode: string, windowProp: string) {
     if (invalidWindowPropRegex.test(windowProp)) {
-        throw new Error('Invalid windowProp regex: ' + windowProp);
+        throw new Error('Invalid windowProp ' + windowProp + '. Matches invalid regex ' + invalidWindowPropRegex);
     }
-    return `(function() { with(window.${windowProp}.scopeProxy) { ${jsCode} } }).bind(window.${windowProp}.modifiedWindow)();`;
+    if (jsCode.startsWith(signatureJSRewrite)) {
+        return jsCode;
+    }
+    return (
+        signatureJSRewrite +
+        ` (function() { with(window.${windowProp}.scopeProxy) { ${jsCode} } }).bind(window.${windowProp}.modifiedWindow)();`
+    );
 }
 
 export { jsRewriter, invalidWindowPropRegex };
