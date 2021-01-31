@@ -92,6 +92,7 @@ Following is the current functions that are implemented with their unit tests wr
   - window
 
 Todo list:
+
 - add getter/setter rewriters
 - add more todo rewrite functions to todo rewrite list
 - todo rewrite list
@@ -103,6 +104,6 @@ Todo list:
   - Worker
   - postMessage
   
-  ## Contributing
+## Contributing
 
-  Guidelines and development details can be found [here](CONTRIBUTING.md).
+Guidelines and development details can be found [here](CONTRIBUTING.md).
