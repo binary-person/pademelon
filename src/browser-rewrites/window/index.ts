@@ -3,7 +3,7 @@ import { rewritefetch } from './fetch';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
 import { rewriteRequest } from './Request';
 import { rewriteResponse } from './Response';
-import { rewriteXMLHttpRequest } from './XMLHttpRequest';
+import { rewriteXMLHttpRequest } from './XMLHttpRequest.prototype.open';
 
 type rewriterFuncParams = (pademelonInstance: Pademelon) => void;
 
