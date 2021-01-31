@@ -1,13 +1,13 @@
 import { allowedModRegex } from './rewriters/UrlRewriter';
 
-type modTypes = 'javascript' | 'stylesheet' | 'webworker' | 'serviceworker' | 'static' | 'api';
+type modTypes = 'javascript' | 'stylesheet' | 'webworker' | 'serviceworker' | 'raw' | 'api';
 
 const TYPE_TO_MOD: { [mod in modTypes]: string } = {
     javascript: 'js_',
     stylesheet: 'cs_',
     webworker: 'ww_',
     serviceworker: 'sw_',
-    static: 'st_',
+    raw: 'rw_',
     api: 'ap_',
 };
 

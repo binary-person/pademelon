@@ -50,7 +50,7 @@ class BasePademelon extends UrlRewriter {
                 if (cssUrlType === '@import') {
                     mod = typeToMod('stylesheet');
                 } else {
-                    mod = typeToMod('static');
+                    mod = typeToMod('raw');
                 }
             }
             return this.rewriteUrl(unrewrittenUrl, proxyPath, mod);
