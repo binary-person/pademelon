@@ -3,7 +3,7 @@ import { jsRewriter } from './js-rewriter';
 const windowProp = 'pademelonInstance';
 const unrewrittenJS = 'var testvar = "hello from test"';
 const rewrittenJS =
-    '/* begin pademelon js rewrite */ (function() { with(window.pademelonInstance.scopeProxy) { var testvar = "hello from test" } }).bind(window.pademelonInstance.modifiedWindow)();';
+    '/* begin pademelon js rewrite */ with(window.pademelonInstance.scopeProxy) { var testvar = "hello from test" }';
 
 describe('js rewriter', () => {
     it('should rewrite js correctly', () => {
