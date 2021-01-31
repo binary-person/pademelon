@@ -125,4 +125,4 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(port, '127.0.0.1', () => console.log('Pademelon demo server listening on http://127.0.0.1:' + port));
+server.listen(port, '127.0.0.1', () => console.log('Pademelon demo server listening on http://localhost:' + port));
