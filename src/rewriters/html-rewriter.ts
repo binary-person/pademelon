@@ -28,11 +28,11 @@ const attributesToRewrite = [
     'usemap',
     'archive',
     'content',
-    'srcset',
+    'srcset'
 ];
 const htmlAttributeRegex = new RegExp(
     '(' + attributesToRewrite.join('|') + ')(\\s*=\\s*)(["\'])((?:\\\\.|[^\\\\])*?)(?=\\3)',
-    'gi',
+    'gi'
 );
 
 function rewriteAttrSpecial(attr: string, attrValue: string, rewriter: (origUrl: string) => string): string {
@@ -73,7 +73,7 @@ function failbackHtmlRewriter(htmlText: string, urlRewriteFunc: htmlUrlRewriter)
             g3 +
             escapeString(
                 rewriteAttrSpecial(g1, unescapeString(g4), (url) => urlRewriteFunc(url, 'url')),
-                delimiter,
+                delimiter
             )
         );
     });
@@ -84,7 +84,7 @@ function rewriteAttribute(element: any, attributeName: string, callbackRewrite: 
     if (attributeValue) {
         element.setAttribute(
             attributeName,
-            rewriteAttrSpecial(attributeName, attributeValue, (url) => callbackRewrite(url)),
+            rewriteAttrSpecial(attributeName, attributeValue, (url) => callbackRewrite(url))
         );
     }
 }
@@ -94,7 +94,7 @@ function recursiveRewriteHtml(
     urlRewriteFunc: htmlUrlRewriter,
     cssRewriterFunc: strStrFunc,
     jsRewriterFunc: strStrFunc,
-    recursive = true,
+    recursive = true
 ) {
     switch (element.tagName) {
         case 'SCRIPT':

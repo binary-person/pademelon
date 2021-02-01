@@ -12,7 +12,7 @@ function modifiedDocument(pademelonInstance: Pademelon, modifiedWindow: object) 
     Object.defineProperty(modifiedWindow, 'document', {
         get() {
             return interceptedDocument;
-        },
+        }
     });
 }
 

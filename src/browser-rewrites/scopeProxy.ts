@@ -4,7 +4,7 @@ function generateScopeProxy(pademelonInstance: Pademelon) {
     return new Proxy(pademelonInstance.modifiedWindow, {
         has() {
             return true;
-        },
+        }
     });
 }
 

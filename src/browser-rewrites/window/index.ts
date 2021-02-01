@@ -1,6 +1,7 @@
 import Pademelon = require('../../browser-module');
 import { rewriteElementProto } from './Element.prototype';
 import { rewritefetch } from './fetch';
+import { rewriteHistory } from './history';
 import { rewriteHTMLElements } from './HTMLElements';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
 import { rewriteRequest } from './Request';
@@ -17,6 +18,7 @@ const windowRewriters: rewriterFuncParams[] = [
     rewriteNavigatorSendBeacon,
     rewriteHTMLElements,
     rewriteElementProto,
+    rewriteHistory
 ];
 
 export { windowRewriters, rewriterFuncParams };

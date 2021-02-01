@@ -10,7 +10,7 @@ describe('rewrite fetch, Request, and Response', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
 
     it('should rewrite correctly', async () => {
@@ -20,7 +20,7 @@ describe('rewrite fetch, Request, and Response', () => {
         window.Response.prototype = {
             get url() {
                 return this.innerUrl;
-            },
+            }
         } as any;
         // using jest mocks to create a new constructor, to fix '_Request is not a constructor'
         window.Request = jest.fn().mockImplementation((input: string | { url: string }) => {

@@ -10,7 +10,7 @@ describe('rewrite XMLHttpRequest.prototype', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
 
     it('should rewrite open correctly', () => {

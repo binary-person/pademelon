@@ -20,7 +20,7 @@ function rewriteFunction(
     prop: string,
     useNew: boolean,
     interceptArgs: rewriteFuncParams,
-    interceptReturn?: rewriteReturnParams,
+    interceptReturn?: rewriteReturnParams
 ) {
     if (typeof obj[prop] === 'function') {
         const originalFunc = obj[prop];

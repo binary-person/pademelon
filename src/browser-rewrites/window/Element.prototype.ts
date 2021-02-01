@@ -8,7 +8,7 @@ function rewriteAttrValue(
     element: Element,
     attr: string,
     attrValue: string,
-    rewriter: (url: string, mod?: string) => string,
+    rewriter: (url: string, mod?: string) => string
 ): string {
     if (htmlElementClassRewrites[element.constructor.name]) {
         for (const eachRewriteAttr of htmlElementClassRewrites[element.constructor.name]) {
@@ -30,11 +30,11 @@ function rewriteElementProto(pademelonInstance: Pademelon) {
                 return [
                     attr,
                     rewriteAttrValue(this, attr, attrValue, (url, mod) =>
-                        pademelonInstance.rewriteUrl(url, typeToMod(mod as modTypes)),
-                    ),
+                        pademelonInstance.rewriteUrl(url, typeToMod(mod as modTypes))
+                    )
                 ];
             }
-        },
+        }
     );
     rewriteFunction(
         Element.prototype,
@@ -46,7 +46,7 @@ function rewriteElementProto(pademelonInstance: Pademelon) {
                 return rewriteAttrValue(this, attr, originalValue, (url) => pademelonInstance.unrewriteUrl(url).url);
             }
             return originalValue;
-        },
+        }
     );
 }
 

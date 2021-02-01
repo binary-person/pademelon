@@ -10,7 +10,7 @@ describe('rewrite navigator.sendBeacon', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
 
     it('should rewrite correctly', () => {

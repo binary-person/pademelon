@@ -9,7 +9,7 @@ function rewriteResponse(pademelonInstance: Pademelon) {
         window.Response.prototype = {
             get url() {
                 return null;
-            },
+            }
         } as any;
     }
     rewriteGetterSetter(
@@ -21,7 +21,7 @@ function rewriteResponse(pademelonInstance: Pademelon) {
             }
             return returnValue;
         },
-        undefined,
+        undefined
     );
 }
 

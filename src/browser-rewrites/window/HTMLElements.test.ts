@@ -10,7 +10,7 @@ describe('rewrite HTMLElements', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
 
     it('should rewrite script src with mod correctly', () => {
@@ -39,6 +39,8 @@ describe('rewrite HTMLElements', () => {
         const imgElement = document.createElement('img');
         expect(imgElement.srcset).toEqual('https://proxiedsite.com/size1.png 1x, https://proxiedsite.com/size2.png 2x');
         imgElement.srcset = '/size3.png 3x, /size4.png 4x';
-        expect(setterMock).toHaveBeenCalledWith('/prefix/rw_/https://proxiedsite.com/size3.png 3x, /prefix/rw_/https://proxiedsite.com/size4.png 4x');
+        expect(setterMock).toHaveBeenCalledWith(
+            '/prefix/rw_/https://proxiedsite.com/size3.png 3x, /prefix/rw_/https://proxiedsite.com/size4.png 4x'
+        );
     });
 });

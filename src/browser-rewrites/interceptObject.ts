@@ -65,7 +65,7 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
                 }
             }
             return true;
-        },
+        }
     });
 }
 

@@ -23,10 +23,7 @@ class BasePademelon extends UrlRewriter {
         this.baseOptions.windowProp = this.baseOptions.windowProp as string;
         if (invalidWindowPropRegex.test(this.baseOptions.windowProp)) {
             throw new Error(
-                'Invalid windowProp ' +
-                    this.baseOptions.windowProp +
-                    '. Does not match regex ' +
-                    invalidWindowPropRegex,
+                'Invalid windowProp ' + this.baseOptions.windowProp + '. Does not match regex ' + invalidWindowPropRegex
             );
         }
         if (this.baseOptions.windowProp === 'Pademelon') {

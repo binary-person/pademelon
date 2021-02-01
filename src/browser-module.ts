@@ -44,7 +44,7 @@ class Pademelon extends BasePademelon {
             },
             (cssText) => this.rewriteCSS(cssText, proxyPath),
             this.rewriteJS,
-            recursive,
+            recursive
         );
     }
     public rewriteUrl = (url: string, mod?: string, proxyPath: string = window.location.pathname): string => {

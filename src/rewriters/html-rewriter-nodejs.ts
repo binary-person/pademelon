@@ -5,7 +5,7 @@ function htmlNodejsRewriter(
     htmlText: string,
     urlRewriteFunc: htmlUrlRewriter,
     cssRewriterFunc: strStrFunc,
-    jsRewriterFunc: strStrFunc,
+    jsRewriterFunc: strStrFunc
 ): string {
     if (validateHtml(htmlText)) {
         const parsedHtml = parseHtml(htmlText, {
@@ -15,8 +15,8 @@ function htmlNodejsRewriter(
                 script: true, // keep text content when parsing
                 noscript: true, // keep text content when parsing
                 style: true, // keep text content when parsing
-                pre: true, // keep text content when parsing
-            },
+                pre: true // keep text content when parsing
+            }
         });
         recursiveRewriteHtml(parsedHtml, urlRewriteFunc, cssRewriterFunc, jsRewriterFunc);
         return parsedHtml.toString();

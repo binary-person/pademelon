@@ -39,7 +39,7 @@ class Pademelon extends BasePademelon {
     public rewriteHTML(
         htmlText: string,
         proxyPath: string,
-        pademelonInject = this.generateDefaultPademelonInject(),
+        pademelonInject = this.generateDefaultPademelonInject()
     ): string {
         return htmlInject(
             htmlNodejsRewriter(
@@ -55,9 +55,9 @@ class Pademelon extends BasePademelon {
                     }
                 },
                 (cssText) => this.rewriteCSS(cssText, proxyPath),
-                this.rewriteJS.bind(this),
+                this.rewriteJS.bind(this)
             ),
-            pademelonInject,
+            pademelonInject
         );
     }
 }

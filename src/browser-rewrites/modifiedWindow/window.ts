@@ -4,7 +4,7 @@ function modifiedRecursiveWindow(pademelonInstance: Pademelon, modifiedWindow: o
     Object.defineProperty(modifiedWindow, 'window', {
         get() {
             return pademelonInstance.modifiedWindow;
-        },
+        }
     });
 }
 

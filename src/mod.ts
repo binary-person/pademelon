@@ -8,7 +8,7 @@ const TYPE_TO_MOD: { [mod in modTypes]: string } = {
     webworker: 'ww_',
     serviceworker: 'sw_',
     raw: 'rw_',
-    api: 'ap_',
+    api: 'ap_'
 };
 
 Object.keys(TYPE_TO_MOD).forEach((eachMod) => {
@@ -21,7 +21,7 @@ Object.keys(TYPE_TO_MOD).forEach((eachMod) => {
                 '] = ' +
                 TYPE_TO_MOD[typedMod] +
                 ' violates the regex ' +
-                allowedModRegex,
+                allowedModRegex
         );
     }
 });

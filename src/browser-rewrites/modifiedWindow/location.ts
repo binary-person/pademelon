@@ -33,19 +33,19 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
                     }
                     window.location.href = pademelonInstance.rewriteUrl(unrewrittenUrl.href);
                 }
-            },
+            }
         });
     }
     Object.defineProperties(modifiedLocationProps, {
         assign: {
-            value: (url: string) => window.location.assign(pademelonInstance.rewriteUrl(url)),
+            value: (url: string) => window.location.assign(pademelonInstance.rewriteUrl(url))
         },
         replace: {
-            value: (url: string) => window.location.replace(pademelonInstance.rewriteUrl(url)),
+            value: (url: string) => window.location.replace(pademelonInstance.rewriteUrl(url))
         },
         toString: {
-            value: () => modifiedLocationProps.href,
-        },
+            value: () => modifiedLocationProps.href
+        }
     });
 
     const locationObj = interceptObject(window.location, modifiedLocationProps);
@@ -57,7 +57,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
         },
         set(value) {
             window.location.href = pademelonInstance.rewriteUrl(value.toString());
-        },
+        }
     });
 }
 

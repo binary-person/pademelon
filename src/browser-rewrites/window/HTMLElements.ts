@@ -51,7 +51,7 @@ const htmlElementClassRewrites: htmlElementClassRewritesShape = {
     HTMLIFrameElement: [['src']],
     HTMLImageElement: [
         ['src', 'raw'],
-        ['srcset', 'raw'],
+        ['srcset', 'raw']
     ],
     HTMLInputElement: [['src']],
     HTMLLinkElement: [['href']],
@@ -63,14 +63,14 @@ const htmlElementClassRewrites: htmlElementClassRewritesShape = {
     HTMLScriptElement: [['src', 'javascript']],
     HTMLSourceElement: [['src'], ['srcset']],
     HTMLTemplateElement: [['content']],
-    HTMLTrackElement: [['src']],
+    HTMLTrackElement: [['src']]
 };
 
 function rewriteElementProtoAttr(
     pademelonInstance: Pademelon,
     targetElementClass: any,
     attr: string,
-    mod?: string,
+    mod?: string
 ): void {
     if (targetElementClass && targetElementClass.prototype) {
         rewriteGetterSetter(
@@ -81,7 +81,7 @@ function rewriteElementProtoAttr(
             },
             (setValue: string): string => {
                 return rewriteAttrSpecial(attr, setValue, (url) => pademelonInstance.rewriteUrl(url, mod));
-            },
+            }
         );
     }
 }
@@ -93,7 +93,7 @@ function rewriteHTMLElements(pademelonInstance: Pademelon) {
                 pademelonInstance,
                 window[elementClass as any],
                 eachAttribute[0],
-                typeToMod(eachAttribute[1] as modTypes),
+                typeToMod(eachAttribute[1] as modTypes)
             );
         }
     }

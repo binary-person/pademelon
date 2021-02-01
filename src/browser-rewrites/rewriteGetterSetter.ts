@@ -20,7 +20,7 @@ function rewriteGetterSetter(
     obj: objRewriteType,
     prop: string,
     rewriteGetter?: rewriteGetterReturnFunc,
-    rewriteSetter?: rewriteSetterFunc,
+    rewriteSetter?: rewriteSetterFunc
 ) {
     if (!rewriteGetter && !rewriteSetter) {
         throw new Error('At least one of the getter setter rewrites must be set');

@@ -14,7 +14,7 @@ describe('CSS Rewriter', () => {
     const rewrittenCSS = cssRewriter(originalCSS, (inputUrl: string, urlTypes: cssUrlTypes) => {
         cssUrlRewriterCalls.push({
             inputUrl,
-            urlTypes,
+            urlTypes
         });
         return '/prefixed/' + inputUrl;
     });
@@ -47,7 +47,7 @@ describe('CSS Rewriter', () => {
             { inputUrl: 'https://url-double-quote.com', urlTypes: 'url' },
             { inputUrl: "https://url'with-redundant-escaped-single-quote.com", urlTypes: 'url' },
             { inputUrl: 'https://url"with-escaped-double-quote.com', urlTypes: 'url' },
-            { inputUrl: 'https://url\\with-escaped-backslash.com', urlTypes: 'url' },
+            { inputUrl: 'https://url\\with-escaped-backslash.com', urlTypes: 'url' }
         ]);
     });
     it('should match correctly rewritten css file solution', () => {

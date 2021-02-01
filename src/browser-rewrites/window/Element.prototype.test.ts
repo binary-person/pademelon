@@ -10,7 +10,7 @@ describe('rewrite Element.prototype', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
 
     it('should rewrite getAttribute', () => {
@@ -30,7 +30,11 @@ describe('rewrite Element.prototype', () => {
         const scriptElement = document.createElement('script');
         scriptElement.setAttribute('src', '/asset.js');
         scriptElement.setAttribute('someotherattribute', '/asset.js');
-        expect(scriptElement.setAttribute).toHaveBeenNthCalledWith(1, 'src', '/prefix/js_/https://proxiedsite.com/asset.js');
+        expect(scriptElement.setAttribute).toHaveBeenNthCalledWith(
+            1,
+            'src',
+            '/prefix/js_/https://proxiedsite.com/asset.js'
+        );
         expect(scriptElement.setAttribute).toHaveBeenNthCalledWith(2, 'someotherattribute', '/asset.js');
     });
 });

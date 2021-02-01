@@ -10,7 +10,7 @@ describe('modifiedRecursiveWindow', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
     const modifiedWindow = generateModifiedWindow(pademelonInstance);
 

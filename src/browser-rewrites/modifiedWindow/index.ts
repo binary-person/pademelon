@@ -13,7 +13,7 @@ type modifiedWindowFuncParams = (pademelonInstance: Pademelon, modifiedWindow: o
 const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
     modifiedLocation,
     modifiedRecursiveWindow,
-    modifiedDocument,
+    modifiedDocument
 ];
 
 function generateModifiedWindow(pademelonInstance: Pademelon) {

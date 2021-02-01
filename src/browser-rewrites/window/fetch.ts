@@ -18,13 +18,13 @@ function rewritefetch(pademelonInstance: Pademelon) {
                 returnPromiseResponse
                     .then((response) => {
                         Object.defineProperty(response, 'url', {
-                            value: pademelonInstance.unrewriteUrl(response.url).url,
+                            value: pademelonInstance.unrewriteUrl(response.url).url
                         });
                         resolve(response);
                     })
                     .catch(reject);
             });
-        },
+        }
     );
 }
 

@@ -17,7 +17,7 @@ describe('modifiedLocation and modifiedDocument', () => {
             },
             set(value: string) {
                 locationState = new URL(value, locationState.href);
-            },
+            }
         },
         pathname: {
             get() {
@@ -25,23 +25,23 @@ describe('modifiedLocation and modifiedDocument', () => {
             },
             set(value: string) {
                 locationState.pathname = value;
-            },
+            }
         },
         assign: {
             value(url: string) {
                 window.location.href = url;
-            },
+            }
         },
         replace: {
             value(url: string) {
                 window.location.href = url;
-            },
+            }
         },
         toString: {
             value() {
                 return;
-            },
-        },
+            }
+        }
     });
     beforeEach(() => {
         window.location.href = 'http://localhost/prefix/https://proxiedsite.com/';
@@ -54,7 +54,7 @@ describe('modifiedLocation and modifiedDocument', () => {
         hostname: 'localhost',
         pathnamePrefix: '/prefix/',
         windowProp: 'pademelonInstance',
-        useHttp: true,
+        useHttp: true
     });
     const modifiedWindow = generateModifiedWindow(pademelonInstance);
 

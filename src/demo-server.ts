@@ -17,7 +17,7 @@ const pademelon = new Pademelon({
     pathnamePrefix: '/pademelonprefix/',
     windowProp: 'pademelonInstance',
     browserPademelonDistUrl: '/pademelon.min.js',
-    useHttp: true,
+    useHttp: true
 });
 
 function request(options: http.RequestOptions, callback: (res: http.IncomingMessage) => void): http.ClientRequest {
@@ -56,7 +56,7 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
         port: url.port,
         path: url.pathname + url.search,
         method: clientReq.method,
-        headers: clientReq.headers,
+        headers: clientReq.headers
     };
     if (options.headers) {
         options.headers.host = url.host;
@@ -75,10 +75,10 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
         const contentType = res.headers['content-type'] || '';
         const contentTypeSemicolon = contentType.indexOf(';');
         switch (
-        contentType.slice(
-            contentType.indexOf('/') + 1,
-            contentTypeSemicolon === -1 ? contentType.length : contentTypeSemicolon,
-        )
+            contentType.slice(
+                contentType.indexOf('/') + 1,
+                contentTypeSemicolon === -1 ? contentType.length : contentTypeSemicolon
+            )
         ) {
             case 'html':
                 clientRes.end(pademelon.rewriteHTML(await streamToString(res), proxyPath));
@@ -91,16 +91,16 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
                 break;
             default:
                 res.pipe(clientRes, {
-                    end: true,
+                    end: true
                 });
         }
     });
 
     clientReq.pipe(proxy, {
-        end: true,
+        end: true
     });
 
-    proxy.on('error', err => {
+    proxy.on('error', (err) => {
         console.error('Proxy error', err);
         if (!clientRes.writableEnded) {
             clientRes.writeHead(400);
