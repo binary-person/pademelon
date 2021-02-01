@@ -1,6 +1,5 @@
 import { BasePademelon } from './base-rewriter-module';
 import { generateModifiedWindow } from './browser-rewrites/modifiedWindow';
-import { generateScopeProxy } from './browser-rewrites/scopeProxy';
 import { rewriterFuncParams, windowRewriters } from './browser-rewrites/window';
 import { typeToMod } from './mod';
 import { htmlBrowserRewriter } from './rewriters/html-rewriter-browser';
@@ -11,7 +10,6 @@ import { unrewriteUrlType } from './rewriters/UrlRewriter';
  */
 class Pademelon extends BasePademelon {
     public readonly modifiedWindow = generateModifiedWindow(this);
-    public readonly scopeProxy = generateScopeProxy(this);
 
     public windowRewriters: rewriterFuncParams[] = windowRewriters;
 
