@@ -4,7 +4,6 @@ import http = require('http');
 import https = require('https');
 import fs = require('fs');
 import path = require('path');
-import { URL } from 'url';
 
 import streamToString = require('stream-to-string');
 
@@ -62,7 +61,7 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     if (options.headers) {
         options.headers.host = url.host;
         options.headers['accept-encoding'] = 'identity;q=1, *;q=0';
-        if (typeof options.headers.origin) {
+        if (options.headers.origin) {
             options.headers.origin = url.origin;
         }
     }
@@ -70,15 +69,16 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     const proxy = request(options, async (res) => {
         delete res.headers['content-length'];
         delete res.headers['content-security-policy'];
+        delete res.headers.link;
         clientRes.writeHead(res.statusCode || 200, res.headers);
 
         const contentType = res.headers['content-type'] || '';
         const contentTypeSemicolon = contentType.indexOf(';');
         switch (
-            contentType.slice(
-                contentType.indexOf('/') + 1,
-                contentTypeSemicolon === -1 ? contentType.length : contentTypeSemicolon,
-            )
+        contentType.slice(
+            contentType.indexOf('/') + 1,
+            contentTypeSemicolon === -1 ? contentType.length : contentTypeSemicolon,
+        )
         ) {
             case 'html':
                 clientRes.end(pademelon.rewriteHTML(await streamToString(res), proxyPath));
@@ -100,7 +100,13 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
         end: true,
     });
 
-    proxy.on('error', console.error);
+    proxy.on('error', err => {
+        console.error('Proxy error', err);
+        if (!clientRes.writableEnded) {
+            clientRes.writeHead(400);
+            clientRes.end('Proxy error');
+        }
+    });
     clientReq.on('error', console.error);
 }
 
