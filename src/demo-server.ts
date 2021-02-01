@@ -55,7 +55,7 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
             typeof url.hostname === 'string' && url.hostname.startsWith('[') ? url.hostname.slice(1, -1) : url.hostname,
         protocol: url.protocol,
         port: url.port,
-        path: url.pathname,
+        path: url.pathname + url.search,
         method: clientReq.method,
         headers: clientReq.headers,
     };
@@ -70,7 +70,13 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
         clientRes.writeHead(res.statusCode || 200, res.headers);
 
         const contentType = res.headers['content-type'] || '';
-        switch (contentType.slice(contentType.indexOf('/') + 1, contentType.indexOf(';'))) {
+        const contentTypeSemicolon = contentType.indexOf(';');
+        switch (
+            contentType.slice(
+                contentType.indexOf('/') + 1,
+                contentTypeSemicolon === -1 ? contentType.length : contentTypeSemicolon,
+            )
+        ) {
             case 'html':
                 clientRes.end(pademelon.rewriteHTML(await streamToString(res), proxyPath));
                 break;
