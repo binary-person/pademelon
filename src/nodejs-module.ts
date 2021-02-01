@@ -45,7 +45,7 @@ class Pademelon extends BasePademelon {
             htmlNodejsRewriter(
                 htmlText,
                 (inputUrl, htmlUrlType) => {
-                    let mod: modTypes | undefined = undefined;
+                    let mod: modTypes | undefined;
                     switch (htmlUrlType) {
                         case 'script':
                             mod = 'javascript';

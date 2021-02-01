@@ -5,7 +5,7 @@
  * properties
  */
 
-import { bindFunctionObject } from "./bindFunctionObject";
+import { bindFunctionObject } from './bindFunctionObject';
 
 type modifiedPropertiesType = { [modifyProperty: string]: any };
 
