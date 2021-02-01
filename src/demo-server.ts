@@ -62,8 +62,10 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     if (options.headers) {
         options.headers.host = url.host;
         options.headers['accept-encoding'] = 'identity;q=1, *;q=0';
-        if (options.headers.origin) {
-            options.headers.origin = url.origin;
+        if (options.headers.referer) {
+            const refererUrl = new URL(pademelon.unrewriteUrl(options.headers.referer as string).url);
+            options.headers.origin = refererUrl.origin;
+            options.headers.referer = refererUrl.href;
         }
     }
 
