@@ -44,11 +44,11 @@ function rewriteAttrSpecial(attr: string, attrValue: string, rewriter: (origUrl:
             }
             return splitArchive.join(',');
         case 'content':
-            const splitSemicolon = attrValue.split(';');
+            const splitSemicolon = attrValue.split(/;\s*url=/);
             if (splitSemicolon[1]) {
-                splitSemicolon[1] = rewriter(splitSemicolon[1].trim());
+                splitSemicolon[1] = rewriter(splitSemicolon[1]);
             }
-            return splitSemicolon.join('; ');
+            return splitSemicolon.join('; url=');
         case 'srcset':
             try {
                 const srcsetParsed = srcset.parse(attrValue);
