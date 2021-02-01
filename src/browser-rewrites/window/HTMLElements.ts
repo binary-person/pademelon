@@ -28,7 +28,8 @@ for (let eachElementClass of list) {
     for (let eachAttribute of attributes)
         if (eachAttribute in descriptors)
             htmlElementClassRewrites[eachElementClass].push([eachAttribute])
-    if (!htmlElementClassRewrites[eachElementClass].length) delete htmlElementClassRewrites[eachElementClass];
+    if (!htmlElementClassRewrites[eachElementClass].length || eachElementClass === 'HTMLTemplateElement')
+        delete htmlElementClassRewrites[eachElementClass];
 }
 console.log(JSON.stringify(htmlElementClassRewrites, null, 4))
 */
@@ -62,7 +63,6 @@ const htmlElementClassRewrites: htmlElementClassRewritesShape = {
     HTMLQuoteElement: [['cite']],
     HTMLScriptElement: [['src', 'javascript']],
     HTMLSourceElement: [['src'], ['srcset']],
-    HTMLTemplateElement: [['content']],
     HTMLTrackElement: [['src']]
 };
 

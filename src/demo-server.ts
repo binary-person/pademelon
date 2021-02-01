@@ -21,6 +21,7 @@ const pademelon = new Pademelon({
 });
 
 function request(options: http.RequestOptions, callback: (res: http.IncomingMessage) => void): http.ClientRequest {
+    (options as any).rejectUnauthorized = false
     if (options.protocol === 'https:') {
         return https.request(options, callback);
     } else {
@@ -70,6 +71,7 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
         delete res.headers['content-length'];
         delete res.headers['content-security-policy'];
         delete res.headers.link;
+        if (res.headers.location) res.headers.location = pademelon.rewriteUrl(res.headers.location, proxyPath);
         clientRes.writeHead(res.statusCode || 200, res.headers);
 
         const contentType = res.headers['content-type'] || '';
