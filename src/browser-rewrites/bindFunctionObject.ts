@@ -12,18 +12,19 @@
  */
 
 function bindFunctionObject(bindThis: any, targetFunction: (...args: any[]) => any) {
+    const targetFunctionTypeBypass = targetFunction as any;
     const bindedFunc = targetFunction.bind(bindThis);
     return new Proxy(bindedFunc, {
         has(_target, prop) {
             return prop in targetFunction;
         },
         get(_target, prop) {
-            return targetFunction[prop];
+            return targetFunctionTypeBypass[prop];
         },
         set(_target, prop, value) {
             const targetSetterDesc = Object.getOwnPropertyDescriptor(targetFunction, prop);
             if (!targetSetterDesc || targetSetterDesc.writable) {
-                targetFunction[prop] = value;
+                targetFunctionTypeBypass[prop] = value;
                 return true;
             }
             return false;
