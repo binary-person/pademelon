@@ -20,7 +20,7 @@ function jsRewriter(jsCode: string, windowProp: string) {
     if (jsCode.startsWith(signatureJSRewrite)) {
         return jsCode;
     }
-    return signatureJSRewrite + ` with(window.${windowProp}.scopeProxy) { ${jsCode} }`;
+    return signatureJSRewrite + ` with(window.${windowProp}.scopeProxy) {\n${jsCode}\n}`;
 }
 
 export { jsRewriter, invalidWindowPropRegex };
