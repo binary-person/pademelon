@@ -1,5 +1,5 @@
 import { BasePademelon, BasePademelonOptions } from './base-rewriter-module';
-import { typeToMod } from './mod';
+import { modTypes, typeToMod } from './mod';
 import { htmlInject } from './rewriters/html-inject';
 import { htmlNodejsRewriter } from './rewriters/html-rewriter-nodejs';
 
@@ -45,14 +45,19 @@ class Pademelon extends BasePademelon {
             htmlNodejsRewriter(
                 htmlText,
                 (inputUrl, htmlUrlType) => {
+                    let mod: modTypes | undefined = undefined;
                     switch (htmlUrlType) {
                         case 'script':
-                            return this.rewriteUrl(inputUrl, proxyPath, typeToMod('javascript'));
+                            mod = 'javascript';
+                            break;
                         case 'stylesheet':
-                            return this.rewriteUrl(inputUrl, proxyPath, typeToMod('stylesheet'));
-                        default:
-                            return this.rewriteUrl(inputUrl, proxyPath);
+                            mod = 'stylesheet';
+                            break;
+                        case 'fetch':
+                            mod = 'api';
+                            break;
                     }
+                    return this.rewriteUrl(inputUrl, proxyPath, typeToMod(mod));
                 },
                 (cssText) => this.rewriteCSS(cssText, proxyPath),
                 this.rewriteJS.bind(this)

@@ -1,7 +1,7 @@
 import srcset = require('srcset');
 import { escapeCharacters, escapeString, unescapeString } from './css-rewriter';
 
-type htmlUrlTypes = 'url' | 'stylesheet' | 'script';
+type htmlUrlTypes = 'url' | 'stylesheet' | 'script' | 'fetch';
 type htmlUrlRewriter = (inputUrl: string, htmlUrlType: htmlUrlTypes) => string;
 type strStrFunc = (str: string) => string;
 
@@ -110,17 +110,19 @@ function recursiveRewriteHtml(
                     return urlRewriteFunc(hrefValue, 'stylesheet');
                 }
                 const typeAs = element.getAttribute('as');
-                if (typeAs) {
-                    if (typeAs === 'script') {
-                        return urlRewriteFunc(hrefValue, 'script');
-                    } else if (typeAs === 'style') {
-                        return urlRewriteFunc(hrefValue, 'stylesheet');
-                    } else {
-                        return urlRewriteFunc(hrefValue, 'url');
-                    }
-                } else {
-                    return urlRewriteFunc(hrefValue, 'url');
+                let urlType: htmlUrlTypes = 'url';
+                switch (typeAs) {
+                    case 'script':
+                        urlType = 'script';
+                        break;
+                    case 'style':
+                        urlType = 'stylesheet';
+                        break;
+                    case 'fetch':
+                        urlType = 'fetch';
+                        break;
                 }
+                return urlRewriteFunc(hrefValue, urlType);
             });
             break;
         default:
