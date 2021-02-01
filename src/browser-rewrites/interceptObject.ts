@@ -5,6 +5,8 @@
  * properties
  */
 
+import { bindFunctionObject } from "./bindFunctionObject";
+
 type modifiedPropertiesType = { [modifyProperty: string]: any };
 
 function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType) {
@@ -42,29 +44,22 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
                 return modifiedProperties[prop];
             } else {
                 if (typeof targetObject[prop] === 'function') {
-                    const bindedFunc = targetObject[prop].bind(targetObject);
-                    // copy all static methods to handle function objects like Date
-                    Object.defineProperties(bindedFunc, Object.getOwnPropertyDescriptors(targetObject[prop]));
-                    return bindedFunc;
+                    return bindFunctionObject(targetObject, targetObject[prop]);
                 }
                 return targetObject[prop];
             }
         },
         set(_target: any, prop: string, value) {
-            try {
-                if (prop in modifiedProperties) {
-                    modifiedProperties[prop] = value;
-                } else {
-                    targetObject[prop] = value;
-                }
-            } catch (e) {
-                if (e instanceof TypeError && e.message.includes('read only')) {
-                    return false;
-                } else {
-                    throw e;
-                }
+            if (prop in modifiedProperties) {
+                modifiedProperties[prop] = value;
+                return true;
             }
-            return true;
+            const targetSetterDesc = Object.getOwnPropertyDescriptor(targetObject, prop);
+            if (!targetSetterDesc || targetSetterDesc.writable) {
+                targetObject[prop] = value;
+                return true;
+            }
+            return false;
         }
     });
 }

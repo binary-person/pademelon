@@ -21,7 +21,7 @@ const pademelon = new Pademelon({
 });
 
 function request(options: http.RequestOptions, callback: (res: http.IncomingMessage) => void): http.ClientRequest {
-    (options as any).rejectUnauthorized = false
+    (options as any).rejectUnauthorized = false;
     if (options.protocol === 'https:') {
         return https.request(options, callback);
     } else {
