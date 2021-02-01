@@ -1,3 +1,4 @@
+import srcset = require('srcset');
 import { escapeCharacters, escapeString, unescapeString } from './css-rewriter';
 
 type htmlUrlTypes = 'url' | 'stylesheet' | 'script';
@@ -8,27 +9,83 @@ type strStrFunc = (str: string) => string;
 // https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks#comment87998981_171499
 
 // :~ means capture group is used to recreate the original string, and not used in processing
-// capture group 1:~ 'href = '
-// capture group 2: delimiter. " or '
-// capture group 3: the actual url
+// capture group 1: href
+// capture group 2:~ ' = '
+// capture group 3: delimiter. " or '
+// capture group 4: the actual url
 
-const attributesToRewrite = ['href', 'src', 'poster', 'action', 'data', 'codebase'];
+const attributesToRewrite = [
+    'action',
+    'background',
+    'cite',
+    'classid',
+    'codebase',
+    'data',
+    'href',
+    'longdesc',
+    'profile',
+    'src',
+    'usemap',
+    'archive',
+    'content',
+    'srcset',
+];
 const htmlAttributeRegex = new RegExp(
-    '((?:' + attributesToRewrite.join('|') + ')\\s*=\\s*)(["\'])((?:\\\\.|[^\\\\])*?)(?=\\2)',
-    'g',
+    '(' + attributesToRewrite.join('|') + ')(\\s*=\\s*)(["\'])((?:\\\\.|[^\\\\])*?)(?=\\3)',
+    'gi',
 );
 
+function rewriteAttrSpecial(attr: string, attrValue: string, rewriter: (origUrl: string) => string): string {
+    switch (attr?.toLowerCase()) {
+        case 'archive':
+            const splitArchive = attrValue.split(/ |,/);
+            for (let i = 0; i < splitArchive.length; i++) {
+                splitArchive[i] = rewriter(splitArchive[i]);
+            }
+            return splitArchive.join(',');
+        case 'content':
+            const splitSemicolon = attrValue.split(';');
+            if (splitSemicolon[1]) {
+                splitSemicolon[1] = rewriter(splitSemicolon[1].trim());
+            }
+            return splitSemicolon.join('; ');
+        case 'srcset':
+            try {
+                const srcsetParsed = srcset.parse(attrValue);
+                for (const eachSet of srcsetParsed) {
+                    eachSet.url = rewriter(eachSet.url);
+                }
+                return srcset.stringify(srcsetParsed);
+            } catch (e) {
+                return attrValue;
+            }
+        default:
+            return rewriter(attrValue);
+    }
+}
+
 function failbackHtmlRewriter(htmlText: string, urlRewriteFunc: htmlUrlRewriter): string {
-    return htmlText.replace(htmlAttributeRegex, (_match: string, g1: string, g2: string, g3: string) => {
-        const delimiter = g2 as escapeCharacters;
-        return g1 + g2 + escapeString(urlRewriteFunc(unescapeString(g3), 'url'), delimiter);
+    return htmlText.replace(htmlAttributeRegex, (_match: string, g1: string, g2: string, g3: string, g4: string) => {
+        const delimiter = g3 as escapeCharacters;
+        return (
+            g1 +
+            g2 +
+            g3 +
+            escapeString(
+                rewriteAttrSpecial(g1, unescapeString(g4), (url) => urlRewriteFunc(url, 'url')),
+                delimiter,
+            )
+        );
     });
 }
 
 function rewriteAttribute(element: any, attributeName: string, callbackRewrite: (attributeValue: string) => string) {
     const attributeValue = element.getAttribute(attributeName);
     if (attributeValue) {
-        element.setAttribute(attributeName, callbackRewrite(attributeValue));
+        element.setAttribute(
+            attributeName,
+            rewriteAttrSpecial(attributeName, attributeValue, (url) => callbackRewrite(url)),
+        );
     }
 }
 
@@ -70,16 +127,6 @@ function recursiveRewriteHtml(
             for (const eachAttribute of attributesToRewrite) {
                 rewriteAttribute(element, eachAttribute, (attributeValue) => urlRewriteFunc(attributeValue, 'url'));
             }
-            rewriteAttribute(element, 'srcset', (attributeValue) => {
-                return attributeValue
-                    .split(',')
-                    .map((e) => {
-                        const spaceSplit = e.trim().split(' ');
-                        spaceSplit[0] = urlRewriteFunc(spaceSplit[0], 'url');
-                        return spaceSplit.join(' ');
-                    })
-                    .join(', ');
-            });
             rewriteAttribute(element, 'style', cssRewriterFunc);
     }
     if (recursive) {
@@ -92,4 +139,4 @@ function recursiveRewriteHtml(
     }
 }
 
-export { recursiveRewriteHtml, failbackHtmlRewriter, htmlUrlTypes, htmlUrlRewriter, strStrFunc };
+export { recursiveRewriteHtml, failbackHtmlRewriter, rewriteAttrSpecial, htmlUrlTypes, htmlUrlRewriter, strStrFunc };

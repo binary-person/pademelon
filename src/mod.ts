@@ -26,8 +26,8 @@ Object.keys(TYPE_TO_MOD).forEach((eachMod) => {
     }
 });
 
-function typeToMod(type: modTypes): string {
-    if (type in TYPE_TO_MOD) {
+function typeToMod(type?: modTypes): string {
+    if (type && type in TYPE_TO_MOD) {
         return TYPE_TO_MOD[type];
     }
     return '';

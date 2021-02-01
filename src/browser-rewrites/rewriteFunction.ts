@@ -1,7 +1,7 @@
 import { fakeToString } from './fakeToString';
 
 type rewriteFuncParams = (originalFunc: (...args: any[]) => void, ...args: any[]) => any[] | void;
-type rewriteReturnParams = (originalFunc: (...args: any[]) => void, originalReturnValue: any) => any;
+type rewriteReturnParams = (originalFunc: (...args: any[]) => void, originalReturnValue: any, ...args: any[]) => any;
 type objRewriteType = { [key: string]: any };
 
 /**
@@ -13,7 +13,7 @@ type objRewriteType = { [key: string]: any };
  * the args that will be passed on to the original function. If undefined or falsy, the original args
  * will be used instead
  * @param interceptReturn - after the function call, its return value will be passed to interceptReturn
- * to rewrite the return value. this parameter is optional
+ * to rewrite the return value along with original args. this parameter is optional
  */
 function rewriteFunction(
     obj: objRewriteType,
@@ -33,7 +33,7 @@ function rewriteFunction(
                 returnValue = originalFunc.apply(this, args);
             }
             if (typeof interceptReturn === 'function') {
-                return interceptReturn.call(this, originalFunc.bind(this), returnValue);
+                return interceptReturn.call(this, originalFunc.bind(this), returnValue, ...args);
             } else {
                 return returnValue;
             }

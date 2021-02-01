@@ -62,6 +62,9 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     if (options.headers) {
         options.headers.host = url.host;
         options.headers['accept-encoding'] = 'identity;q=1, *;q=0';
+        if (typeof options.headers.origin) {
+            options.headers.origin = url.origin;
+        }
     }
 
     const proxy = request(options, async (res) => {

@@ -4,7 +4,7 @@
 
 import Pademelon = require('../../browser-module');
 
-describe('rewrite XMLHttpRequest', () => {
+describe('rewrite XMLHttpRequest.prototype', () => {
     history.pushState(null, '', '/prefix/https://proxiedsite.com');
     const pademelonInstance = new Pademelon({
         hostname: 'localhost',
@@ -13,7 +13,7 @@ describe('rewrite XMLHttpRequest', () => {
         useHttp: true,
     });
 
-    it('should rewrite XMLHttpRequest.prototype.open correctly', () => {
+    it('should rewrite open correctly', () => {
         XMLHttpRequest.prototype.open = jest.fn();
 
         pademelonInstance.initWindowRewrites();
