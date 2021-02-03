@@ -9,10 +9,19 @@ import { bindFunctionObject } from './bindFunctionObject';
 
 type modifiedPropertiesType = { [modifyProperty: string]: any };
 
+function isPropWritable(obj: any, propToWrite: any): boolean {
+    const desc = Object.getOwnPropertyDescriptor(obj, propToWrite);
+    if (!desc || desc.set || desc.writable) {
+        return true;
+    }
+    return false;
+}
+
 function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType) {
     // force "any" type on targetObject to get webpack to stop screaming about
     // "Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{}'."
-    return new Proxy(Object.create(targetObject), {
+    Object.setPrototypeOf(modifiedProperties, targetObject);
+    return new Proxy(modifiedProperties, {
         isExtensible: function (_target) {
             return Object.isExtensible(targetObject);
         },
@@ -32,15 +41,14 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
             return Reflect.ownKeys(targetObject);
         },
         getOwnPropertyDescriptor: function (_target, prop) {
-            const descriptor = Object.getOwnPropertyDescriptor(targetObject, prop);
-            if (descriptor) {
-                // Proxy throws error if targetObject's configurable and Proxy's target configurable are different
-                descriptor.configurable = true;
+            if (modifiedProperties.hasOwnProperty(prop)) {
+                return Object.getOwnPropertyDescriptor(modifiedProperties, prop);
+            } else {
+                return Object.getOwnPropertyDescriptor(targetObject, prop);
             }
-            return descriptor;
         },
         get(_target: any, prop: string) {
-            if (prop in modifiedProperties) {
+            if (modifiedProperties.hasOwnProperty(prop)) {
                 return modifiedProperties[prop];
             } else {
                 if (typeof targetObject[prop] === 'function') {
@@ -50,16 +58,14 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
             }
         },
         set(_target: any, prop: string, value) {
-            if (prop in modifiedProperties) {
+            if (modifiedProperties.hasOwnProperty(prop)) {
+                if (!isPropWritable(modifiedProperties, prop)) return false;
                 modifiedProperties[prop] = value;
                 return true;
             }
-            const targetSetterDesc = Object.getOwnPropertyDescriptor(targetObject, prop);
-            if (!targetSetterDesc || targetSetterDesc.writable) {
-                targetObject[prop] = value;
-                return true;
-            }
-            return false;
+            if (!isPropWritable(targetObject, prop)) return false;
+            targetObject[prop] = value;
+            return true;
         }
     });
 }
