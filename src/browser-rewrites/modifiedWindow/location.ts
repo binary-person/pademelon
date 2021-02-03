@@ -38,12 +38,15 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
     }
     Object.defineProperties(modifiedLocationProps, {
         assign: {
+            enumerable: true,
             value: (url: string) => window.location.assign(pademelonInstance.rewriteUrl(url))
         },
         replace: {
+            enumerable: true,
             value: (url: string) => window.location.replace(pademelonInstance.rewriteUrl(url))
         },
         toString: {
+            enumerable: true,
             value: () => modifiedLocationProps.href
         }
     });
@@ -52,6 +55,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
 
     // handle page code running window.location's setter like this: window.location = "newlocation"
     Object.defineProperty(modifiedWindow, 'location', {
+        enumerable: true,
         get() {
             return locationObj;
         },

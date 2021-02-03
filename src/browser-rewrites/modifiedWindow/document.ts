@@ -10,6 +10,7 @@ function modifiedDocument(pademelonInstance: Pademelon, modifiedWindow: object) 
     modifiedLocation(pademelonInstance, modifiedDocumentProps);
     const interceptedDocument = interceptObject(document, modifiedDocumentProps);
     Object.defineProperty(modifiedWindow, 'document', {
+        enumerable: true,
         get() {
             return interceptedDocument;
         }
