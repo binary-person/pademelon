@@ -20,8 +20,8 @@ function isPropWritable(obj: any, propToWrite: any): boolean {
 function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType) {
     // force "any" type on targetObject to get webpack to stop screaming about
     // "Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{}'."
-    Object.setPrototypeOf(modifiedProperties, targetObject);
-    return new Proxy(modifiedProperties, {
+    const carbonCopy = Object.create(targetObject);
+    return new Proxy(carbonCopy, {
         isExtensible: function (_target) {
             return Object.isExtensible(targetObject);
         },
@@ -41,11 +41,17 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
             return Reflect.ownKeys(targetObject);
         },
         getOwnPropertyDescriptor: function (_target, prop) {
+            let desc: PropertyDescriptor | undefined;
             if (modifiedProperties.hasOwnProperty(prop)) {
-                return Object.getOwnPropertyDescriptor(modifiedProperties, prop);
+                desc = Object.getOwnPropertyDescriptor(modifiedProperties, prop);
             } else {
-                return Object.getOwnPropertyDescriptor(targetObject, prop);
+                desc = Object.getOwnPropertyDescriptor(targetObject, prop);
             }
+            if (!desc) {
+                return;
+            }
+            Object.defineProperty(carbonCopy, prop, desc);
+            return desc;
         },
         get(_target: any, prop: string) {
             if (modifiedProperties.hasOwnProperty(prop)) {
@@ -70,4 +76,4 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
     });
 }
 
-export { interceptObject };
+export { interceptObject, isPropWritable };

@@ -17,7 +17,8 @@
  * 1. do modification to globalObj and check for sameness
  * 2. do modification to interceptedObj and check for sameness
  *
- * others not testing set value functions will
+ * these are general guidelines. there may be test sets that don't follow this
+ * format
  */
 
 import { interceptObject } from './interceptObject';
@@ -192,23 +193,194 @@ describe('interceptObject', () => {
             });
         });
     });
-    // describe('mirroring properties', () => {
-    //     const globalObj: anyObjType = {};
-    //     const interceptedObj = interceptObject(globalObj, {});
+    describe('mirroring properties', () => {
+        const globalObj: anyObjType = {};
+        const interceptedObj = interceptObject(globalObj, {});
 
-    //     describe('mutable values', () => {
-    //         it('should mutate both when mutating globalObj', () => {
-    //             globalObj.mutableValue = 'mutate globalObj';
+        describe('mutable values', () => {
+            it('should mutate both when mutating globalObj', () => {
+                globalObj.mutateValue = 'mutate globalObj';
 
-    //             expect(globalObj.mutateValue).toEqual('mutate globalObj');
-    //             expect(interceptedObj.mutateValue).toEqual('mutate globalObj');
-    //         });
-    //         it('should mutate both when mutating interceptedObj', () => {
-    //             interceptedObj.mutableValue = 'mutate interceptedObj';
+                expect(globalObj.mutateValue).toEqual('mutate globalObj');
+                expect(interceptedObj.mutateValue).toEqual('mutate globalObj');
+            });
+            it('should mutate both when mutating interceptedObj', () => {
+                interceptedObj.mutateValue = 'mutate interceptedObj';
 
-    //             expect(globalObj.mutateValue).toEqual('mutate interceptedObj');
-    //             expect(interceptedObj.mutateValue).toEqual('mutate interceptedObj');
-    //         });
-    //     });
-    // });
+                expect(globalObj.mutateValue).toEqual('mutate interceptedObj');
+                expect(interceptedObj.mutateValue).toEqual('mutate interceptedObj');
+            });
+        });
+        describe('immutable values', () => {
+            Object.defineProperty(globalObj, 'immutableValue', {
+                writable: false,
+                value: 'immutable'
+            });
+
+            it('should throw error and not mutate both when mutating globalObj', () => {
+                expect(() => (globalObj.immutableValue = 'immutated globalObj')).toThrowError(
+                    'Cannot assign to read only property'
+                );
+
+                expect(globalObj.immutableValue).toEqual('immutable');
+                expect(interceptedObj.immutableValue).toEqual('immutable');
+            });
+            it('should throw error and not mutate both when mutating interceptedObj', () => {
+                expect(() => (interceptedObj.immutableValue = 'immutated interceptedObj')).toThrowError(
+                    'trap returned falsish for property'
+                );
+
+                expect(globalObj.immutableValue).toEqual('immutable');
+                expect(interceptedObj.immutableValue).toEqual('immutable');
+            });
+        });
+        describe('defineProperty', () => {
+            it('should have same descriptor for both when defineProperty on globalObj', () => {
+                const descriptor: PropertyDescriptor = {
+                    writable: false,
+                    configurable: true,
+                    enumerable: false,
+                    value: 'value'
+                };
+                Object.defineProperty(globalObj, 'defineProperty_globalObj', descriptor);
+
+                expect(Object.getOwnPropertyDescriptor(globalObj, 'defineProperty_globalObj')).toStrictEqual(
+                    descriptor
+                );
+                expect(Object.getOwnPropertyDescriptor(interceptedObj, 'defineProperty_globalObj')).toStrictEqual(
+                    descriptor
+                );
+            });
+            it('should have same descriptor for both when defineProperty on interceptedObject', () => {
+                const descriptor: PropertyDescriptor = {
+                    writable: false,
+                    configurable: true,
+                    enumerable: false,
+                    value: 'value2'
+                };
+                Object.defineProperty(globalObj, 'defineProperty_interceptedObj', descriptor);
+
+                expect(Object.getOwnPropertyDescriptor(globalObj, 'defineProperty_interceptedObj')).toStrictEqual(
+                    descriptor
+                );
+                expect(Object.getOwnPropertyDescriptor(interceptedObj, 'defineProperty_interceptedObj')).toStrictEqual(
+                    descriptor
+                );
+            });
+        });
+        describe('bind function', () => {
+            globalObj.func = function () {
+                return this;
+            };
+            globalObj.func.testValue = 'test123';
+            globalObj.func.setValue = function (value: string) {
+                this.testValue = value;
+            };
+            interceptedObj.funcIntercept = function () {
+                return this;
+            };
+
+            it('should bind property function', () => {
+                expect(globalObj.func()).toStrictEqual(globalObj);
+                expect(interceptedObj.func()).toStrictEqual(globalObj);
+            });
+            it('should bind function on interceptedObject', () => {
+                expect(globalObj.funcIntercept()).toStrictEqual(globalObj);
+                expect(interceptedObj.funcIntercept()).toStrictEqual(globalObj);
+            });
+            it('should work with func.call', () => {
+                const thisObj = {
+                    some: 'property'
+                };
+
+                expect(globalObj.func.call(thisObj)).toStrictEqual(thisObj);
+                expect(globalObj.funcIntercept.call(thisObj)).toStrictEqual(thisObj);
+
+                expect(interceptedObj.func.call(thisObj)).toStrictEqual(thisObj);
+                expect(interceptedObj.funcIntercept.call(thisObj)).toStrictEqual(thisObj);
+            });
+            it('should work with func.bind', () => {
+                const thisObj = {
+                    some: 'property'
+                };
+
+                expect(globalObj.func.bind(thisObj)()).toStrictEqual(thisObj);
+                expect(globalObj.funcIntercept.bind(thisObj)()).toStrictEqual(thisObj);
+
+                expect(interceptedObj.func.bind(thisObj)()).toStrictEqual(thisObj);
+                expect(interceptedObj.funcIntercept.bind(thisObj)()).toStrictEqual(thisObj);
+            });
+            it.todo(
+                'should work with Function.prototype.call.call' /*, () => {
+                const thisObj = {
+                    some: 'otherproperty'
+                };
+
+                expect(Function.prototype.call.call(globalObj.func, thisObj)).toStrictEqual(thisObj);
+                expect(globalObj.funcIntercept.call(globalObj.funcIntercept, thisObj)).toStrictEqual(thisObj);
+
+                expect(Function.prototype.call.call(interceptedObj.func, thisObj)).toStrictEqual(thisObj);
+                expect(Function.prototype.call.call(interceptedObj.funcIntercept, thisObj)).toStrictEqual(thisObj);
+            }*/
+            );
+            it('should mirror function properties of function', () => {
+                expect(globalObj.func.testValue).toEqual('test123');
+                expect(interceptedObj.func.testValue).toEqual('test123');
+            });
+            it('should mirror function property changes', () => {
+                globalObj.func.propChangeTestGlobal = 'change globalObj';
+                interceptedObj.func.propChangeTestIntercept = 'change interceptedObj';
+
+                expect(globalObj.func.propChangeTestGlobal).toEqual('change globalObj');
+                expect(interceptedObj.func.propChangeTestGlobal).toEqual('change globalObj');
+
+                expect(globalObj.func.propChangeTestIntercept).toEqual('change interceptedObj');
+                expect(interceptedObj.func.propChangeTestIntercept).toEqual('change interceptedObj');
+            });
+            it('property should be called with "this" binded properly', () => {
+                globalObj.func.setValue('set from globalObj');
+
+                expect(globalObj.func.testValue).toEqual('set from globalObj');
+                expect(interceptedObj.func.testValue).toEqual('set from globalObj');
+
+                globalObj.func.setValue('set from interceptedObj');
+
+                expect(globalObj.func.testValue).toEqual('set from interceptedObj');
+                expect(interceptedObj.func.testValue).toEqual('set from interceptedObj');
+            });
+        });
+        describe('es5 classes', () => {
+            globalObj.ES5ClassGlobal = function (inputNumber: number) {
+                this.currentNumber = inputNumber;
+            };
+            globalObj.ES5ClassGlobal.prototype = {
+                add(addValue: number) {
+                    return this.currentNumber + addValue;
+                }
+            };
+
+            interceptedObj.ES5ClassIntercept = function (inputNumber: number) {
+                this.currentNumber = inputNumber;
+            };
+            interceptedObj.ES5ClassIntercept.prototype = {
+                add(addValue: number) {
+                    return this.currentNumber + addValue;
+                }
+            };
+
+            it('should run prototype method correctly using es5 class created through globalObj', () => {
+                expect(new globalObj.ES5ClassGlobal(3).add(3)).toEqual(6);
+                expect(new interceptedObj.ES5ClassGlobal(4).add(3)).toEqual(7);
+            });
+            it('should run prototype method correctly using es5 class created through interceptedObj', () => {
+                expect(new globalObj.ES5ClassIntercept(5).add(3)).toEqual(8);
+                expect(new interceptedObj.ES5ClassIntercept(6).add(3)).toEqual(9);
+            });
+        });
+        describe('Object.keys', () => {
+            it('should be same for both', () => {
+                expect(Object.keys(globalObj)).toEqual(Object.keys(interceptedObj));
+            });
+        });
+    });
 });
