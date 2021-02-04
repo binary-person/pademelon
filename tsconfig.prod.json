@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig",
+    "exclude": [
+        "**/*.test.ts",
+        "**/*.mock.ts",
+        "src/browser-module.ts",
+        "src/browser-rewrites"
+    ]
+}
