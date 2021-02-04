@@ -4,6 +4,7 @@ import { rewriteElementProto } from './Element.prototype';
 import { rewritefetch } from './fetch';
 import { rewriteHistory } from './history';
 import { rewriteHTMLElements } from './HTMLElements';
+import { patchMutationObserver } from './MutationObserver.prototype';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
 import { rewriteRequest } from './Request';
 import { rewriteResponse } from './Response.prototype';
@@ -20,7 +21,8 @@ const windowRewriters: rewriterFuncParams[] = [
     rewriteHTMLElements,
     rewriteElementProto,
     rewriteHistory,
-    patchCreateTreeWalker
+    patchCreateTreeWalker,
+    patchMutationObserver
 ];
 
 export { windowRewriters, rewriterFuncParams };

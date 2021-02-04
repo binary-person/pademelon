@@ -98,6 +98,7 @@ function recursiveRewriteHtml(
 ) {
     switch (element.tagName) {
         case 'SCRIPT':
+            element.removeAttribute('integrity');
             if (element.textContent) element.textContent = jsRewriterFunc(element.textContent);
             rewriteAttribute(element, 'src', (attributeValue) => urlRewriteFunc(attributeValue, 'script'));
             break;
@@ -105,6 +106,7 @@ function recursiveRewriteHtml(
             if (element.textContent) element.textContent = cssRewriterFunc(element.textContent);
             break;
         case 'LINK':
+            element.removeAttribute('integrity');
             rewriteAttribute(element, 'href', (hrefValue) => {
                 if (element.getAttribute('rel') === 'stylesheet' || element.getAttribute('type')?.endsWith('css')) {
                     return urlRewriteFunc(hrefValue, 'stylesheet');
