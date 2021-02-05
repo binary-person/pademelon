@@ -6,6 +6,7 @@ import fs = require('fs');
 import path = require('path');
 
 import streamToString = require('stream-to-string');
+import decompressResponse = require('decompress-response');
 
 import { Pademelon } from './nodejs-module';
 
@@ -61,7 +62,6 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     };
     if (options.headers) {
         options.headers.host = url.host;
-        options.headers['accept-encoding'] = 'identity;q=1, *;q=0';
         if (options.headers.referer) {
             const refererUrl = new URL(pademelon.unrewriteUrl(options.headers.referer as string).url);
             options.headers.origin = refererUrl.origin;
@@ -70,8 +70,10 @@ function proxyHandler(clientReq: http.IncomingMessage, clientRes: http.ServerRes
     }
 
     const proxy = request(options, async (res) => {
+        res = decompressResponse(res);
         delete res.headers['content-length'];
         delete res.headers['content-security-policy'];
+        delete res.headers['content-encoding'];
         delete res.headers.link;
         if (res.headers.location) res.headers.location = pademelon.rewriteUrl(res.headers.location, proxyPath);
         clientRes.writeHead(res.statusCode || 200, res.headers);
