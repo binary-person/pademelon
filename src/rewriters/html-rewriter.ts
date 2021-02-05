@@ -99,7 +99,8 @@ function recursiveRewriteHtml(
     switch (element.tagName) {
         case 'SCRIPT':
             element.removeAttribute('integrity');
-            if (element.textContent) element.textContent = jsRewriterFunc(element.textContent);
+            if (element.textContent && !element.getAttribute('type')?.endsWith('json'))
+                element.textContent = jsRewriterFunc(element.textContent);
             rewriteAttribute(element, 'src', (attributeValue) => urlRewriteFunc(attributeValue, 'script'));
             break;
         case 'STYLE':

@@ -1,7 +1,8 @@
 import Pademelon = require('../../browser-module');
+import { fakeToString } from '../fakeToString';
 import { interceptObject } from '../interceptObject';
 
-function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) {
+function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window) {
     const modifiedLocationProps: any = {};
     const getterSetterUrlProps = ['hash', 'host', 'hostname', 'href', 'pathname', 'port', 'protocol', 'search'];
 
@@ -17,12 +18,12 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
             | 'search';
         Object.defineProperty(modifiedLocationProps, eachProp, {
             get() {
-                return new URL(pademelonInstance.unrewriteUrl(window.location.href).url)[typedEachProp];
+                return new URL(pademelonInstance.unrewriteUrl(targetWindow.location.href).url)[typedEachProp];
             },
             set(value) {
                 // non refresh triggering props
                 if (typedEachProp === 'hash' || typedEachProp === 'search') {
-                    window.location[typedEachProp] = value;
+                    targetWindow.location[typedEachProp] = value;
                 } else {
                     let unrewrittenUrl: URL;
                     if (typedEachProp === 'href') {
@@ -31,7 +32,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
                         unrewrittenUrl = new URL(pademelonInstance.unrewriteUrl().url);
                         unrewrittenUrl[typedEachProp] = value;
                     }
-                    window.location.href = pademelonInstance.rewriteUrl(unrewrittenUrl.href);
+                    targetWindow.location.href = pademelonInstance.rewriteUrl(unrewrittenUrl.href);
                 }
             }
         });
@@ -39,11 +40,17 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
     Object.defineProperties(modifiedLocationProps, {
         assign: {
             enumerable: true,
-            value: (url: string) => window.location.assign(pademelonInstance.rewriteUrl(url))
+            value: fakeToString(
+                (url: string) => targetWindow.location.assign(pademelonInstance.rewriteUrl(url)),
+                'assign'
+            )
         },
         replace: {
             enumerable: true,
-            value: (url: string) => window.location.replace(pademelonInstance.rewriteUrl(url))
+            value: fakeToString(
+                (url: string) => targetWindow.location.replace(pademelonInstance.rewriteUrl(url)),
+                'replace'
+            )
         },
         toString: {
             enumerable: true,
@@ -51,16 +58,16 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object) 
         }
     });
 
-    const locationObj = interceptObject(window.location, modifiedLocationProps);
+    const locationObj = interceptObject(targetWindow.location, modifiedLocationProps);
 
-    // handle page code running window.location's setter like this: window.location = "newlocation"
+    // handle page code running targetWindow.location's setter like this: targetWindow.location = "newlocation"
     Object.defineProperty(modifiedWindow, 'location', {
         enumerable: true,
         get() {
             return locationObj;
         },
         set(value) {
-            window.location.href = pademelonInstance.rewriteUrl(value.toString());
+            targetWindow.location.href = pademelonInstance.rewriteUrl(value.toString());
         }
     });
 }
