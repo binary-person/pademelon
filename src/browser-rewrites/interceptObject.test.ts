@@ -288,16 +288,55 @@ describe('interceptObject', () => {
                 expect(globalObj.funcIntercept()).toStrictEqual(globalObj);
                 expect(interceptedObj.funcIntercept()).toStrictEqual(globalObj);
             });
+            it('two binded functions should be equal', () => {
+                expect(globalObj.func).toBe(globalObj.func);
+                expect(interceptedObj.func).toBe(interceptedObj.func);
+
+                expect(globalObj.funcIntercept).toBe(globalObj.funcIntercept);
+                expect(interceptedObj.funcIntercept).toBe(interceptedObj.funcIntercept);
+            });
             it('should work with func.call', () => {
                 const thisObj = {
                     some: 'property'
                 };
 
-                expect(globalObj.func.call(thisObj)).toStrictEqual(thisObj);
-                expect(globalObj.funcIntercept.call(thisObj)).toStrictEqual(thisObj);
+                expect(globalObj.func.call(thisObj)).toBe(thisObj);
+                expect(globalObj.funcIntercept.call(thisObj)).toBe(thisObj);
 
-                expect(interceptedObj.func.call(thisObj)).toStrictEqual(thisObj);
-                expect(interceptedObj.funcIntercept.call(thisObj)).toStrictEqual(thisObj);
+                expect(interceptedObj.func.call(thisObj)).toBe(thisObj);
+                expect(interceptedObj.funcIntercept.call(thisObj)).toBe(thisObj);
+            });
+            it('should work with func.propFunc.call', () => {
+                const thisObj = {
+                    some: 'property'
+                };
+                globalObj.funcIntercept.propFunc = function () {
+                    return this;
+                };
+                interceptedObj.func.propFunc = function () {
+                    return this;
+                };
+                interceptedObj.funcIntercept.testValue = '123';
+
+                expect(globalObj.func.propFunc.call(thisObj)).toBe(thisObj);
+                expect(globalObj.funcIntercept.propFunc.call(thisObj)).toBe(thisObj);
+
+                expect(interceptedObj.func.propFunc.call(thisObj)).toBe(thisObj);
+                expect(interceptedObj.funcIntercept.propFunc.call(thisObj)).toBe(thisObj);
+            });
+            it('should return this when func.propFunc()', () => {
+                expect(globalObj.func.propFunc()).toBe(globalObj.func);
+                expect(globalObj.funcIntercept.propFunc()).toBe(globalObj.funcIntercept);
+
+                expect(interceptedObj.func.propFunc()).toBe(globalObj.func);
+                expect(interceptedObj.funcIntercept.propFunc()).toBe(globalObj.funcIntercept);
+            });
+            it('two binded function properties should be equal', () => {
+                expect(globalObj.func.propFunc).toBe(globalObj.func.propFunc);
+                expect(interceptedObj.func.propFunc).toBe(interceptedObj.func.propFunc);
+
+                expect(globalObj.funcIntercept.propFunc).toBe(globalObj.funcIntercept.propFunc);
+                expect(interceptedObj.funcIntercept.propFunc).toBe(interceptedObj.funcIntercept.propFunc);
             });
             it('should work with func.bind', () => {
                 const thisObj = {

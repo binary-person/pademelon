@@ -11,27 +11,12 @@
  * redirecting the getter and setter property calls appropriately
  */
 
-import { isPropWritable } from './interceptObject';
+import { interceptObject } from './interceptObject';
 
 function bindFunctionObject(bindThis: any, targetFunction: (...args: any[]) => any): any {
     const targetFunctionTypeBypass = targetFunction as any;
     const bindedFunc = targetFunction.bind(bindThis);
-    return new Proxy(bindedFunc, {
-        has(_target, prop) {
-            return prop in targetFunction;
-        },
-        get(_target, prop) {
-            if (typeof targetFunctionTypeBypass[prop] === 'function') {
-                return bindFunctionObject(targetFunction, targetFunctionTypeBypass[prop]);
-            }
-            return targetFunctionTypeBypass[prop];
-        },
-        set(_target, prop, value) {
-            if (!isPropWritable(targetFunction, prop)) return false;
-            targetFunctionTypeBypass[prop] = value;
-            return true;
-        }
-    });
+    return interceptObject(targetFunction, {}, bindedFunc);
 }
 
 export { bindFunctionObject };

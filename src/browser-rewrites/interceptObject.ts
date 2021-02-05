@@ -8,6 +8,12 @@
 import { bindFunctionObject } from './bindFunctionObject';
 
 type modifiedPropertiesType = { [modifyProperty: string]: any };
+type bindCacheType = {
+    [prop: string]: {
+        originalFunc: () => void;
+        bindedFunc: () => void;
+    };
+};
 
 function isPropWritable(obj: any, propToWrite: any): boolean {
     const desc = Object.getOwnPropertyDescriptor(obj, propToWrite);
@@ -17,10 +23,9 @@ function isPropWritable(obj: any, propToWrite: any): boolean {
     return false;
 }
 
-function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType) {
-    // force "any" type on targetObject to get webpack to stop screaming about
-    // "Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{}'."
-    const carbonCopy = Object.create(targetObject);
+function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType, proxyTarget?: any) {
+    const bindCache: bindCacheType = Object.create(null);
+    const carbonCopy = proxyTarget ? proxyTarget : Object.create(targetObject);
     return new Proxy(carbonCopy, {
         isExtensible: function (_target) {
             return Object.isExtensible(targetObject);
@@ -34,8 +39,14 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
         has: function (_target, prop) {
             return prop in targetObject;
         },
-        deleteProperty: function (_target, property) {
-            return delete targetObject[property];
+        deleteProperty: function (_target, prop: string) {
+            if (prop in bindCache) {
+                delete bindCache[prop];
+            }
+            if (carbonCopy.hasOwnProperty(prop)) {
+                delete carbonCopy[prop];
+            }
+            return delete targetObject[prop];
         },
         ownKeys: function (_target) {
             return Reflect.ownKeys(targetObject);
@@ -58,7 +69,15 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
                 return modifiedProperties[prop];
             } else {
                 if (typeof targetObject[prop] === 'function') {
-                    return bindFunctionObject(targetObject, targetObject[prop]);
+                    if (!(prop in bindCache) || bindCache[prop].originalFunc !== targetObject[prop]) {
+                        bindCache[prop] = {
+                            originalFunc: targetObject[prop],
+                            bindedFunc: bindFunctionObject(targetObject, targetObject[prop])
+                        };
+                    }
+                    return bindCache[prop].bindedFunc;
+                } else if (prop in bindCache) {
+                    delete bindCache[prop];
                 }
                 return targetObject[prop];
             }
@@ -76,4 +95,4 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
     });
 }
 
-export { interceptObject, isPropWritable };
+export { interceptObject };
