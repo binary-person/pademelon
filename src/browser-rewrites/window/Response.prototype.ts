@@ -5,7 +5,7 @@ function rewriteResponse(pademelonInstance: Pademelon) {
     if (!window.Response) {
         // jsdom does not have window.Response so polyfilling it here to prevent
         // it from throwing errors on other browser-rewrite tests
-        window.Response = function () {} as any;
+        window.Response = (() => undefined) as any;
         window.Response.prototype = {
             get url() {
                 return null;

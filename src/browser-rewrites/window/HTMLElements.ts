@@ -87,6 +87,7 @@ function rewriteElementProtoAttr(
 }
 
 function rewriteHTMLElements(pademelonInstance: Pademelon) {
+    // tslint:disable-next-line:forin
     for (const elementClass in htmlElementClassRewrites) {
         for (const eachAttribute of htmlElementClassRewrites[elementClass]) {
             rewriteElementProtoAttr(

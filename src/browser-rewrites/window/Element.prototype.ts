@@ -40,7 +40,7 @@ function rewriteElementProto(pademelonInstance: Pademelon) {
         Element.prototype,
         'getAttribute',
         false,
-        () => {},
+        () => undefined,
         function (this: Element, _, originalValue, attr: string) {
             if (typeof originalValue === 'string') {
                 return rewriteAttrValue(this, attr, originalValue, (url) => pademelonInstance.unrewriteUrl(url).url);

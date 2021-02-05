@@ -27,19 +27,12 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
     const bindCache: bindCacheType = Object.create(null);
     const carbonCopy = proxyTarget ? proxyTarget : Object.create(targetObject);
     return new Proxy(carbonCopy, {
-        isExtensible: function (_target) {
-            return Object.isExtensible(targetObject);
-        },
-        preventExtensions: function (_target) {
-            return Object.preventExtensions(targetObject);
-        },
-        defineProperty: function (_target, property, descriptor) {
-            return Object.defineProperty(targetObject, property, descriptor);
-        },
-        has: function (_target, prop) {
-            return prop in targetObject;
-        },
-        deleteProperty: function (_target, prop: string) {
+        isExtensible: () => Object.isExtensible(targetObject),
+        preventExtensions: () => Object.preventExtensions(targetObject),
+        defineProperty: (_target, prop, descriptor) => Object.defineProperty(targetObject, prop, descriptor),
+        has: (_target, prop) => prop in targetObject,
+        ownKeys: () => Reflect.ownKeys(targetObject),
+        deleteProperty: (_target, prop: string) => {
             if (prop in bindCache) {
                 delete bindCache[prop];
             }
@@ -48,10 +41,7 @@ function interceptObject(targetObject: any, modifiedProperties: modifiedProperti
             }
             return delete targetObject[prop];
         },
-        ownKeys: function (_target) {
-            return Reflect.ownKeys(targetObject);
-        },
-        getOwnPropertyDescriptor: function (_target, prop) {
+        getOwnPropertyDescriptor(_target, prop) {
             let desc: PropertyDescriptor | undefined;
             if (modifiedProperties.hasOwnProperty(prop)) {
                 desc = Object.getOwnPropertyDescriptor(modifiedProperties, prop);

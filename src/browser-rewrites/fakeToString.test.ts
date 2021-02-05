@@ -1,7 +1,7 @@
 import { fakeToString } from './fakeToString';
 
 describe('fakeToString', () => {
-    const func = () => {};
+    const func = () => undefined;
     fakeToString(func, 'func');
     it("rewrites target function's toString to return native code with function name", () => {
         expect(func.toString()).toEqual('function func() { [native code] }');
