@@ -387,6 +387,28 @@ describe('interceptObject', () => {
                 expect(globalObj.func.testValue).toEqual('set from interceptedObj');
                 expect(interceptedObj.func.testValue).toEqual('set from interceptedObj');
             });
+            it('should inherit with __proto__', () => {
+                interceptedObj.funcProto = Object.create(interceptedObj.func);
+
+                expect(globalObj.funcProto.testValue).toEqual('set from interceptedObj');
+                expect(interceptedObj.funcProto.testValue).toEqual('set from interceptedObj');
+
+                interceptedObj.func.testValue = 23;
+
+                expect(globalObj.funcProto.testValue).toEqual(23);
+                expect(interceptedObj.funcProto.testValue).toEqual(23);
+            });
+        });
+        describe('__proto__ inheritance', () => {
+            interceptedObj.protoParent = {
+                parentValue: 123
+            };
+            interceptedObj.protoChild = Object.create(interceptedObj.protoParent);
+
+            it('should inherit correctly', () => {
+                expect(globalObj.protoChild.parentValue).toEqual(123);
+                expect(interceptedObj.protoChild.parentValue).toEqual(123);
+            });
         });
         describe('es5 classes', () => {
             globalObj.ES5ClassGlobal = function (inputNumber: number) {
