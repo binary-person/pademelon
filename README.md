@@ -24,7 +24,7 @@ More importantly:
 4. Server and client use different rewriting code (pywb has their own rewriting functions while the client uses wombat), and this library's goal is to bring the two pieces together
 
 About the project:
-1. purpose is to provide easy, understandable client rewriting tools to nodejs developers
+1. Purpose is to provide easy, understandable client rewriting tools to nodejs developers
 2. Primarily used as a URL proxy (like `https://someproxysite.com/https://destinationwebsite.com`)
 3. Rewrites `XMLHttpRequest`, `fetch`, `history`, `postMessage`, `Worker`, and more (for the full list see [Roadmap](#roadmap), all to make sure everything is to be served under `https://someproxysite.com/https://destinationwebsite.com` and not `https://destinationwebsite.com`
 
@@ -93,14 +93,11 @@ Following is the current functions that are implemented with their unit tests wr
 
 Todo list:
 
-- add getter/setter rewriters
 - add more todo rewrite functions to todo rewrite list
 - todo rewrite list
-  - document atttribute getters/setters
-  - implement MutationObserver
+  - innerHTML rewrites
   - localStorage
   - sessionStorage
-  - history
   - Worker
   - postMessage
   
