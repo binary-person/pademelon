@@ -5,8 +5,6 @@
  * properties
  */
 
-import { bindFunctionObject } from './bindFunctionObject';
-
 type modifiedPropertiesType = { [modifyProperty: string]: any };
 type bindCacheType = {
     [prop: string]: {
@@ -15,74 +13,91 @@ type bindCacheType = {
     };
 };
 
-function isPropWritable(obj: any, propToWrite: any): boolean {
-    const desc = Object.getOwnPropertyDescriptor(obj, propToWrite);
-    if (!desc || desc.set || desc.writable) {
-        return true;
-    }
-    return false;
+function hasProperty(obj: any, prop: string | number | symbol) {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-function interceptObject(targetObject: any, modifiedProperties: modifiedPropertiesType, proxyTarget?: any) {
+function interceptObject(
+    targetObject: any,
+    modifiedProperties: modifiedPropertiesType,
+    parentObject?: any,
+    parentProxyObject?: any
+): any {
     const bindCache: bindCacheType = Object.create(null);
-    const carbonCopy = proxyTarget ? proxyTarget : Object.create(targetObject);
-    return new Proxy(carbonCopy, {
-        isExtensible: () => Object.isExtensible(targetObject),
-        preventExtensions: () => Object.preventExtensions(targetObject),
-        defineProperty: (_target, prop, descriptor) => Object.defineProperty(targetObject, prop, descriptor),
-        has: (_target, prop) => prop in targetObject,
+
+    // tslint:disable-next-line
+    const carbonCopy = typeof targetObject === 'function' ? function () {} : {};
+    Object.setPrototypeOf(carbonCopy, targetObject);
+
+    const proxyObject = new Proxy(carbonCopy, {
+        getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
+        setPrototypeOf: (_target, prop) => Reflect.setPrototypeOf(targetObject, prop),
+        construct: (_target, argArray, newTarget) => Reflect.construct(targetObject, argArray, newTarget),
+        isExtensible: () => Reflect.isExtensible(targetObject),
+        preventExtensions: () => Reflect.preventExtensions(targetObject),
+        defineProperty: (_target, prop, descriptor) => Reflect.defineProperty(targetObject, prop, descriptor),
+        has: (_target, prop) => Reflect.has(targetObject, prop),
         ownKeys: () => Reflect.ownKeys(targetObject),
+        apply: (_target, thisArg, argArray) => {
+            return Reflect.apply(
+                targetObject,
+                parentObject && (!(thisArg || parentProxyObject) || thisArg === parentProxyObject)
+                    ? parentObject
+                    : thisArg,
+                argArray
+            );
+        },
         deleteProperty: (_target, prop: string) => {
-            if (prop in bindCache) {
+            if (hasProperty(bindCache, prop)) {
                 delete bindCache[prop];
             }
-            if (carbonCopy.hasOwnProperty(prop)) {
-                delete carbonCopy[prop];
+            if (hasProperty(carbonCopy, prop)) {
+                Reflect.deleteProperty(carbonCopy, prop);
             }
-            return delete targetObject[prop];
+            return Reflect.deleteProperty(targetObject, prop);
         },
         getOwnPropertyDescriptor(_target, prop) {
             let desc: PropertyDescriptor | undefined;
-            if (modifiedProperties.hasOwnProperty(prop)) {
-                desc = Object.getOwnPropertyDescriptor(modifiedProperties, prop);
+            if (hasProperty(modifiedProperties, prop)) {
+                desc = Reflect.getOwnPropertyDescriptor(modifiedProperties, prop);
             } else {
-                desc = Object.getOwnPropertyDescriptor(targetObject, prop);
+                desc = Reflect.getOwnPropertyDescriptor(targetObject, prop);
             }
             if (!desc) {
                 return;
             }
-            Object.defineProperty(carbonCopy, prop, desc);
+            Reflect.defineProperty(carbonCopy, prop, desc);
             return desc;
         },
-        get(_target: any, prop: string) {
-            if (modifiedProperties.hasOwnProperty(prop)) {
-                return modifiedProperties[prop];
+        get(_target: any, prop: string, receiver: any) {
+            receiver = receiver === proxyObject ? targetObject : receiver;
+            if (hasProperty(modifiedProperties, prop)) {
+                return Reflect.get(modifiedProperties, prop, receiver);
             } else {
-                if (typeof targetObject[prop] === 'function') {
-                    if (!(prop in bindCache) || bindCache[prop].originalFunc !== targetObject[prop]) {
+                const value = Reflect.get(targetObject, prop, receiver);
+                if (typeof value === 'function') {
+                    if (!(prop in bindCache) || bindCache[prop].originalFunc !== value) {
                         bindCache[prop] = {
-                            originalFunc: targetObject[prop],
-                            bindedFunc: bindFunctionObject(targetObject, targetObject[prop])
+                            originalFunc: value,
+                            bindedFunc: interceptObject(value, {}, targetObject, proxyObject)
                         };
                     }
                     return bindCache[prop].bindedFunc;
                 } else if (prop in bindCache) {
                     delete bindCache[prop];
                 }
-                return targetObject[prop];
+                return value;
             }
         },
-        set(_target: any, prop: string, value) {
-            if (modifiedProperties.hasOwnProperty(prop)) {
-                if (!isPropWritable(modifiedProperties, prop)) return false;
-                modifiedProperties[prop] = value;
-                return true;
+        set(_target: any, prop: string, value, receiver: any) {
+            receiver = receiver === proxyObject ? targetObject : receiver;
+            if (hasProperty(modifiedProperties, prop)) {
+                return Reflect.set(modifiedProperties, prop, value);
             }
-            if (!isPropWritable(targetObject, prop)) return false;
-            targetObject[prop] = value;
-            return true;
+            return Reflect.set(targetObject, prop, value);
         }
     });
+    return proxyObject;
 }
 
 export { interceptObject };

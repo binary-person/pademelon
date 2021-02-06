@@ -349,19 +349,17 @@ describe('interceptObject', () => {
                 expect(interceptedObj.func.bind(thisObj)()).toStrictEqual(thisObj);
                 expect(interceptedObj.funcIntercept.bind(thisObj)()).toStrictEqual(thisObj);
             });
-            it.todo(
-                'should work with Function.prototype.call.call' /*, () => {
+            it('should work with Function.prototype.call.call', () => {
                 const thisObj = {
                     some: 'otherproperty'
                 };
 
-                expect(Function.prototype.call.call(globalObj.func, thisObj)).toStrictEqual(thisObj);
-                expect(globalObj.funcIntercept.call(globalObj.funcIntercept, thisObj)).toStrictEqual(thisObj);
+                expect(Function.prototype.call.call(globalObj.func, thisObj)).toBe(thisObj);
+                expect(Function.prototype.call.call(globalObj.funcIntercept, thisObj)).toBe(thisObj);
 
-                expect(Function.prototype.call.call(interceptedObj.func, thisObj)).toStrictEqual(thisObj);
-                expect(Function.prototype.call.call(interceptedObj.funcIntercept, thisObj)).toStrictEqual(thisObj);
-            }*/
-            );
+                expect(Function.prototype.call.call(interceptedObj.func, thisObj)).toBe(thisObj);
+                expect(Function.prototype.call.call(interceptedObj.funcIntercept, thisObj)).toBe(thisObj);
+            });
             it('should mirror function properties of function', () => {
                 expect(globalObj.func.testValue).toEqual('test123');
                 expect(interceptedObj.func.testValue).toEqual('test123');
