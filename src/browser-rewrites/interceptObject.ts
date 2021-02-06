@@ -21,7 +21,8 @@ function interceptObject(
     targetObject: any,
     modifiedProperties: modifiedPropertiesType,
     parentObject?: any,
-    parentProxyObject?: any
+    parentProxyObject?: any,
+    getHook: (prop: string | number | symbol) => void = () => undefined
 ): any {
     const bindCache: bindCacheType = Object.create(null);
 
@@ -36,8 +37,11 @@ function interceptObject(
         isExtensible: () => Reflect.isExtensible(targetObject),
         preventExtensions: () => Reflect.preventExtensions(targetObject),
         defineProperty: (_target, prop, descriptor) => Reflect.defineProperty(targetObject, prop, descriptor),
-        has: (_target, prop) => Reflect.has(targetObject, prop),
         ownKeys: () => Reflect.ownKeys(targetObject),
+        has: (_target, prop) => {
+            getHook(prop);
+            return Reflect.has(targetObject, prop);
+        },
         apply: (_target, thisArg, argArray) => {
             return Reflect.apply(
                 targetObject,
@@ -70,6 +74,7 @@ function interceptObject(
             return desc;
         },
         get(_target: any, prop: string, receiver: any) {
+            getHook(prop);
             receiver = receiver === proxyObject ? targetObject : receiver;
             if (hasProperty(modifiedProperties, prop)) {
                 return Reflect.get(modifiedProperties, prop, receiver);

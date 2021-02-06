@@ -25,7 +25,11 @@ function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Wind
     for (const modifiedWindowRewriter of modifiedWindowRewriters) {
         modifiedWindowRewriter(pademelonInstance, modifiedWindow, targetWindow);
     }
-    return interceptObject(window, modifiedWindow);
+    return interceptObject(targetWindow, modifiedWindow, undefined, undefined, (prop) => {
+        if (!(prop in targetWindow) && typeof prop === 'string') {
+            pademelonInstance.runFuncLookupChain(prop);
+        }
+    });
 }
 
 export { generateModifiedWindow };
