@@ -1,11 +1,13 @@
 import Pademelon = require('../../browser-module');
-import { patchCreateTreeWalker } from './document.createTreeWalker';
+import { rewriteDocumentProto, patchCreateTreeWalker } from './Document';
 import { rewriteElementProto } from './Element.prototype';
 import { rewritefetch } from './fetch';
 import { rewriteHistory } from './history';
-import { rewriteHTMLElements } from './HTMLElements';
+import { rewriteHTMLElementsAttribute } from './HTMLElementsAttribute';
+import { rewriteScriptElementProto } from './HTMLScriptElement.prototype';
 import { patchMutationObserver } from './MutationObserver.prototype';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
+import { rewriteNodeProto } from './Node.prototype';
 import { rewriteRequest } from './Request';
 import { rewriteResponse } from './Response.prototype';
 import { rewriteXMLHttpRequest } from './XMLHttpRequest.prototype';
@@ -18,9 +20,12 @@ const windowRewriters: rewriterFuncParams[] = [
     rewriteRequest,
     rewriteResponse,
     rewriteNavigatorSendBeacon,
-    rewriteHTMLElements,
-    rewriteElementProto,
     rewriteHistory,
+    rewriteNodeProto,
+    rewriteDocumentProto,
+    rewriteHTMLElementsAttribute,
+    rewriteElementProto,
+    rewriteScriptElementProto,
     patchCreateTreeWalker,
     patchMutationObserver
 ];

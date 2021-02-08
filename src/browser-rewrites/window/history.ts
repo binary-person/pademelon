@@ -5,11 +5,11 @@ function rewriteHistory(pademelonInstance: Pademelon) {
     const funcWrapper = (_: any, data: any, title: any, url?: string) => {
         if (url) {
             url = pademelonInstance.rewriteUrl(url);
-            return [data, title, url];
         }
+        return [data, title, url];
     };
-    rewriteFunction(history, 'pushState', false, funcWrapper);
-    rewriteFunction(history, 'replaceState', false, funcWrapper);
+    rewriteFunction(history, 'pushState', false, { interceptArgs: funcWrapper });
+    rewriteFunction(history, 'replaceState', false, { interceptArgs: funcWrapper });
 }
 
 export { rewriteHistory };

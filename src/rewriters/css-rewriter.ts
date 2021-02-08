@@ -46,7 +46,7 @@ function escapeString(str: string, delimiter: escapeCharacters): string {
                 .replace(escapeDoubleQuote, '\\"')
                 .replace(escapeParentheses, '\\)');
         default:
-            throw new Error('Unknown delimiter: ' + delimiter);
+            throw new TypeError('Unknown delimiter: ' + delimiter);
     }
 }
 

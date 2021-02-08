@@ -6,14 +6,13 @@ import { rewriteFunction } from '../rewriteFunction';
  * then unrewrites the response url after the request
  */
 function rewritefetch(pademelonInstance: Pademelon) {
-    rewriteFunction(
-        window,
-        'fetch',
-        false,
-        (_, input: string | Request, initOpts: Request) => {
+    // polyfill empty function to make jest tests run
+    if (!window.fetch) window.fetch = (() => undefined) as any;
+    rewriteFunction(window, 'fetch', false, {
+        interceptArgs(_, input: string | Request, initOpts: Request) {
             return [new Request(input, initOpts)];
         },
-        (_, returnPromiseResponse: Promise<Response>) => {
+        interceptReturn(_, returnPromiseResponse: Promise<Response>) {
             return new Promise((resolve, reject) => {
                 returnPromiseResponse
                     .then((response) => {
@@ -25,7 +24,7 @@ function rewritefetch(pademelonInstance: Pademelon) {
                     .catch(reject);
             });
         }
-    );
+    });
 }
 
 export { rewritefetch };

@@ -2,7 +2,7 @@ import Pademelon = require('../../browser-module');
 import { modTypes, typeToMod } from '../../mod';
 import { rewriteAttrSpecial } from '../../rewriters/html-rewriter';
 import { rewriteFunction } from '../rewriteFunction';
-import { htmlElementClassRewrites } from './HTMLElements';
+import { htmlElementClassRewrites } from './HTMLElementsAttribute';
 
 function rewriteAttrValue(
     element: Element,
@@ -21,33 +21,24 @@ function rewriteAttrValue(
 }
 
 function rewriteElementProto(pademelonInstance: Pademelon) {
-    rewriteFunction(
-        Element.prototype,
-        'setAttribute',
-        false,
-        function (this: Element, _, attr: string, attrValue?: string) {
+    rewriteFunction(Element.prototype, 'setAttribute', false, {
+        interceptArgs(this: Element, _, attr: string, attrValue?: string) {
             if (typeof attrValue === 'string') {
-                return [
-                    attr,
-                    rewriteAttrValue(this, attr, attrValue, (url, mod) =>
-                        pademelonInstance.rewriteUrl(url, typeToMod(mod as modTypes))
-                    )
-                ];
+                attrValue = rewriteAttrValue(this, attr, attrValue, (url, mod) =>
+                    pademelonInstance.rewriteUrl(url, typeToMod(mod as modTypes))
+                );
             }
+            return [attr, attrValue];
         }
-    );
-    rewriteFunction(
-        Element.prototype,
-        'getAttribute',
-        false,
-        () => undefined,
-        function (this: Element, _, originalValue, attr: string) {
+    });
+    rewriteFunction(Element.prototype, 'getAttribute', false, {
+        interceptReturn(this: Element, _, originalValue, attr: string) {
             if (typeof originalValue === 'string') {
                 return rewriteAttrValue(this, attr, originalValue, (url) => pademelonInstance.unrewriteUrl(url).url);
             }
             return originalValue;
         }
-    );
+    });
 }
 
 export { rewriteElementProto };

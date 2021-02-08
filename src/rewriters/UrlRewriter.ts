@@ -5,12 +5,14 @@ const httpUrlRegex = /^http(s)?:\/\//i;
 const nonRelativeRegex = /^\/\/|^(http|ws)s?:\/\//i;
 
 const defaultPrefixBlacklist = ['data:', 'blob:', 'about:', 'ftp:', 'file:'];
+const defaultUrlBlacklist = ['about:blank'];
 
 interface UrlRewriterOptions {
     hostname: string;
     pathnamePrefix: string;
     useHttp?: boolean;
     blacklistPrefixes?: string[];
+    blacklistUrls?: string[];
     rewriteUrlIntercept?: (rewrittenUrl: string) => string; // called right before return to caller
     unrewriteUrlIntercept?: (rewrittenUrl: string) => string; // called before any unrewrite is done
 }
@@ -31,13 +33,13 @@ class UrlRewriter {
     private proxyPrefixes: string[];
     constructor(options: UrlRewriterOptions) {
         if (!options.pathnamePrefix.startsWith('/')) {
-            throw new Error('Expected pathnamePrefix to start with /');
+            throw new TypeError('Expected pathnamePrefix to start with /');
         }
         if (!options.pathnamePrefix.endsWith('/')) {
-            throw new Error('Expected pathnamePrefix to end with /');
+            throw new TypeError('Expected pathnamePrefix to end with /');
         }
         if (options.hostname.endsWith('/')) {
-            throw new Error('Unexpected trailing slash in hostname');
+            throw new TypeError('Unexpected trailing slash in hostname');
         }
 
         this.proxyPrefix = options.hostname + options.pathnamePrefix;
@@ -51,6 +53,11 @@ class UrlRewriter {
             options.blacklistPrefixes = [];
         }
         options.blacklistPrefixes = options.blacklistPrefixes.concat(defaultPrefixBlacklist);
+
+        if (!options.blacklistUrls) {
+            options.blacklistUrls = [];
+        }
+        options.blacklistUrls = options.blacklistUrls.concat(defaultUrlBlacklist);
 
         this.proxyPrefixes = [];
         // scheme://hostname/pathnamePrefix/
@@ -102,7 +109,11 @@ class UrlRewriter {
     public rewriteUrl(url: string, proxyPath: string, mod?: string): string {
         url = url.toString();
 
-        if (this.isBlacklistedPrefix(url) || this.getProxyPrefix(url) !== false) {
+        if (
+            this.isBlacklistedPrefix(url) ||
+            this.getProxyPrefix(url) !== false ||
+            this.urlRewriterOptions.blacklistUrls?.includes(url)
+        ) {
             return url;
         }
 
@@ -127,7 +138,7 @@ class UrlRewriter {
             if (allowedModRegex.test(mod)) {
                 prefix += mod + '/';
             } else {
-                throw new Error(mod + ' mod not allowed. Does not match the regex ' + allowedModRegex);
+                throw new TypeError(mod + ' mod not allowed. Does not match the regex ' + allowedModRegex);
             }
         }
 

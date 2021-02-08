@@ -23,7 +23,7 @@ const invalidWindowPropRegex = /[^a-z_]/i;
 const signatureJSRewrite = '/* begin pademelon js rewrite */';
 function jsRewriter(jsCode: string, windowProp: string) {
     if (invalidWindowPropRegex.test(windowProp)) {
-        throw new Error('Invalid windowProp ' + windowProp + '. Matches invalid regex ' + invalidWindowPropRegex);
+        throw new TypeError('Invalid windowProp ' + windowProp + '. Matches invalid regex ' + invalidWindowPropRegex);
     }
     if (jsCode.startsWith(signatureJSRewrite)) {
         return jsCode;

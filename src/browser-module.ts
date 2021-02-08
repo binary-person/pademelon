@@ -14,6 +14,8 @@ class Pademelon extends BasePademelon {
     public readonly modifiedWindow = generateModifiedWindow(this);
     public funcLookupChain: globalizeFunctionType[] = [];
 
+    private pademelonDistJS = '';
+
     public windowRewriters: rewriterFuncParams[] = windowRewriters;
 
     public initWindowRewrites() {
@@ -21,9 +23,17 @@ class Pademelon extends BasePademelon {
             if (typeof eachRewriter === 'function') {
                 eachRewriter(this);
             } else {
-                throw new Error(`one of the windowRewriters is not a function. received ` + eachRewriter);
+                throw new TypeError(`one of the windowRewriters is not a function. received ` + eachRewriter);
             }
         }
+    }
+    public getPademelonDist() {
+        if (this.pademelonDistJS) return this.pademelonDistJS;
+        const request = new XMLHttpRequest();
+        request.open('GET', this.getBrowserPademelonDistUrl(), false);
+        request.send();
+        this.pademelonDistJS = request.responseText;
+        return this.pademelonDistJS;
     }
 
     public init() {
@@ -59,6 +69,7 @@ class Pademelon extends BasePademelon {
         );
     }
     public rewriteUrl = (url: string, mod?: string, proxyPath: string = window.location.pathname): string => {
+        if (url === this.getBrowserPademelonDistUrl()) return url;
         return super.rewriteUrl(url, proxyPath, mod);
     };
     public unrewriteUrl = (proxyUrl: string = window.location.pathname): unrewriteUrlType => {

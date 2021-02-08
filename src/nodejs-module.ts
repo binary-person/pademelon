@@ -24,18 +24,6 @@ class Pademelon extends BasePademelon {
         super((options as any) as BasePademelonOptions);
         this.options = options;
     }
-    private generateDefaultPademelonInject(): string {
-        const pademelonDist = '<script src="' + this.options.browserPademelonDistUrl + '"></script>';
-        const pademelonInit =
-            '<script>window.' +
-            this.baseOptions.windowProp +
-            ' = new Pademelon(' +
-            JSON.stringify(this.options) +
-            ');' +
-            this.baseOptions.windowProp +
-            '.init()</script>';
-        return pademelonDist + pademelonInit;
-    }
     public rewriteHTML(
         htmlText: string,
         proxyPath: string,

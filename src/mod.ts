@@ -15,7 +15,7 @@ const TYPE_TO_MOD: { [mod in modTypes]: string } = {
 Object.keys(TYPE_TO_MOD).forEach((eachMod) => {
     const typedMod = eachMod as modTypes; // get typescript to shush about incompatibility of eachMod: string and modTypes
     if (!allowedModRegex.test(TYPE_TO_MOD[typedMod])) {
-        throw new Error(
+        throw new TypeError(
             'Invalid mod in mod.ts file. Please file an issue and include ' +
                 'the following information: TYPE_TO_MOD[' +
                 eachMod +

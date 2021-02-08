@@ -11,7 +11,7 @@ describe('HTML NodeJS Rewriter', () => {
             case 'url':
                 return '/url/' + inputUrl;
             default:
-                throw new Error('Unknown htmlUrlType: ' + htmlUrlType);
+                throw new TypeError('Unknown htmlUrlType: ' + htmlUrlType);
         }
     };
     const jsRewriter: strStrFunc = (jsText) => {

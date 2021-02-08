@@ -2,12 +2,14 @@ import { UrlRewriter, UrlRewriterOptions } from './rewriters/UrlRewriter';
 import { cssRewriter } from './rewriters/css-rewriter';
 import { invalidWindowPropRegex, jsRewriter } from './rewriters/js-rewriter';
 import { typeToMod } from './mod';
-import { stringify } from 'querystring';
 
 interface BasePademelonOptions extends UrlRewriterOptions {
+    browserPademelonDistUrl?: string;
     windowProp?: string;
     noMod?: boolean;
 }
+
+const defaultBrowserPademelonDistUrl = '/pademelon.min.js';
 
 /**
  * extended by browser and nodejs classes
@@ -22,12 +24,12 @@ class BasePademelon extends UrlRewriter {
         }
         this.baseOptions.windowProp = this.baseOptions.windowProp as string;
         if (invalidWindowPropRegex.test(this.baseOptions.windowProp)) {
-            throw new Error(
+            throw new TypeError(
                 'Invalid windowProp ' + this.baseOptions.windowProp + '. Does not match regex ' + invalidWindowPropRegex
             );
         }
         if (this.baseOptions.windowProp === 'Pademelon') {
-            throw new Error('windowProp cannot be the same name as the class name');
+            throw new TypeError('windowProp cannot be the same name as the class name');
         }
     }
     /**
@@ -55,6 +57,25 @@ class BasePademelon extends UrlRewriter {
     }
     public rewriteJS(jsCode: string): string {
         return jsRewriter(jsCode, this.baseOptions.windowProp as string);
+    }
+    public generateDefaultPademelonInitCode(): string {
+        return (
+            'window.' +
+            this.baseOptions.windowProp +
+            ' = new Pademelon(' +
+            JSON.stringify(this.baseOptions) +
+            ');' +
+            this.baseOptions.windowProp +
+            '.init()'
+        );
+    }
+    public getBrowserPademelonDistUrl(): string {
+        return this.baseOptions.browserPademelonDistUrl || defaultBrowserPademelonDistUrl;
+    }
+    public generateDefaultPademelonInject(): string {
+        const pademelonDist = '<script src="' + this.getBrowserPademelonDistUrl() + '"></script>';
+        const pademelonInit = '<script>' + this.generateDefaultPademelonInitCode() + '</script>';
+        return pademelonDist + pademelonInit;
     }
 }
 

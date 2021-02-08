@@ -12,17 +12,14 @@ function rewriteResponse(pademelonInstance: Pademelon) {
             }
         } as any;
     }
-    rewriteGetterSetter(
-        window.Response.prototype,
-        'url',
-        (returnValue: string) => {
+    rewriteGetterSetter(window.Response.prototype, 'url', {
+        rewriteGetter: (returnValue: string) => {
             if (returnValue) {
                 returnValue = pademelonInstance.unrewriteUrl(returnValue).url;
             }
             return returnValue;
-        },
-        undefined
-    );
+        }
+    });
 }
 
 export { rewriteResponse };

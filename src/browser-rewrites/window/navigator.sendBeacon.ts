@@ -3,8 +3,12 @@ import { typeToMod } from '../../mod';
 import { rewriteFunction } from '../rewriteFunction';
 
 function rewriteNavigatorSendBeacon(pademelonInstance: Pademelon) {
-    rewriteFunction(window.navigator, 'sendBeacon', false, (_, url: string, data: any) => {
-        return [pademelonInstance.rewriteUrl(url, typeToMod('api')), data];
+    if (!window.navigator.sendBeacon) window.navigator.sendBeacon = (() => undefined) as any;
+
+    rewriteFunction(window.navigator, 'sendBeacon', false, {
+        interceptArgs(_, url: string, data: any) {
+            return [pademelonInstance.rewriteUrl(url, typeToMod('api')), data];
+        }
     });
 }
 

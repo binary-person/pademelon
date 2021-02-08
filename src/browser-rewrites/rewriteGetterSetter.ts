@@ -2,7 +2,9 @@ import { fakeToString } from './fakeToString';
 import { objRewriteType } from './rewriteFunction';
 
 type rewriteGetterReturnFunc = (returnValue: any) => any;
-type rewriteSetterFunc = (setValue: any) => void;
+type rewriteSetterFunc = (setValue: any) => any;
+type hookAfterGetterFunc = (returnValue: any, modifiedReturnValue: any) => void;
+type hookAfterSetterFunc = (setterValue: any, modifiedSetterValue: any) => void;
 
 /**
  *
@@ -15,37 +17,56 @@ type rewriteSetterFunc = (setValue: any) => void;
  * @param rewriteSetter - rewriteSetter will be called with setValue passed as a param. rewriteSetter's
  * return value will be passed onto the original setter. If originalSetter doesn't exist, nothing will
  * happen. If !rewriteSetter, the original setter will be used instead
+ * @param hookAfterGetter - executed after call to original getter
+ * @param hookAfterSetter - executed after call to original setter
  */
 function rewriteGetterSetter(
     obj: objRewriteType,
     prop: string,
-    rewriteGetter?: rewriteGetterReturnFunc,
-    rewriteSetter?: rewriteSetterFunc
+    {
+        rewriteGetter,
+        rewriteSetter,
+        hookAfterGetter,
+        hookAfterSetter
+    }: {
+        rewriteGetter?: rewriteGetterReturnFunc;
+        rewriteSetter?: rewriteSetterFunc;
+        hookAfterGetter?: hookAfterGetterFunc;
+        hookAfterSetter?: hookAfterSetterFunc;
+    }
 ) {
-    if (!rewriteGetter && !rewriteSetter) {
-        throw new Error('At least one of the getter setter rewrites must be set');
+    if (!rewriteGetter && !rewriteSetter && !hookAfterGetter && !hookAfterSetter) {
+        throw new TypeError('At least one of rewrites or hooks must be set');
     }
     const propDescriptor = Object.getOwnPropertyDescriptor(obj, prop);
     if (!propDescriptor) {
-        throw new Error('prop descriptor not defined. Is this a valid object?');
+        throw new TypeError('prop descriptor not defined. Is this a valid object?');
     }
     if (!propDescriptor.configurable) {
-        throw new Error('target prop not configurable');
+        throw new TypeError('target prop not configurable');
     }
     if (!propDescriptor.get && !propDescriptor.set) {
-        throw new Error('target prop does not have a getter nor a setter');
+        throw new TypeError('target prop does not have a getter nor a setter');
     }
-    if (rewriteGetter && propDescriptor.get) {
+
+    if (propDescriptor.get && (rewriteGetter || hookAfterGetter)) {
         const originalGetter = propDescriptor.get;
         propDescriptor.get = function () {
-            return rewriteGetter.call(this, originalGetter.call(this));
+            const originalReturnValue = originalGetter.call(this);
+            const modifiedReturnValue = rewriteGetter
+                ? rewriteGetter.call(this, originalReturnValue)
+                : originalReturnValue;
+            if (hookAfterGetter) hookAfterGetter.call(this, originalReturnValue, modifiedReturnValue);
+            return modifiedReturnValue;
         };
         fakeToString(propDescriptor.get, prop);
     }
-    if (rewriteSetter && propDescriptor.set) {
+    if (propDescriptor.set && (rewriteSetter || hookAfterSetter)) {
         const originalSetter = propDescriptor.set;
         propDescriptor.set = function (value: any) {
-            originalSetter.call(this, rewriteSetter.call(this, value));
+            const modifiedValue = rewriteSetter ? rewriteSetter.call(this, value) : value;
+            originalSetter.call(this, modifiedValue);
+            if (hookAfterSetter) hookAfterSetter.call(this, value, modifiedValue);
         };
         fakeToString(propDescriptor.set, prop);
     }

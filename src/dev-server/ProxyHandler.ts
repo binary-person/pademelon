@@ -59,9 +59,12 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
             try {
                 proxyRes = decompressResponse(proxyRes);
                 delete proxyRes.headers['content-encoding'];
-                const modifiedResponse = this.modHandler[modType as modifierModsType](await streamToString(proxyRes), req.url || '');
+                const modifiedResponse = this.modHandler[modType as modifierModsType](
+                    await streamToString(proxyRes),
+                    req.url || ''
+                );
 
-                if(proxyRes.headers['content-length'] !== undefined)
+                if (proxyRes.headers['content-length'] !== undefined)
                     proxyRes.headers['content-length'] = modifiedResponse.length.toString();
 
                 res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);

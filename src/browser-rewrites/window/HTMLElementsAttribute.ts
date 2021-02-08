@@ -73,20 +73,23 @@ function rewriteElementProtoAttr(
     mod?: string
 ): void {
     if (targetElementClass && targetElementClass.prototype) {
-        rewriteGetterSetter(
-            targetElementClass.prototype,
-            attr,
-            (returnValue: string): string => {
-                return rewriteAttrSpecial(attr, returnValue, (url) => pademelonInstance.unrewriteUrl(url).url);
+        rewriteGetterSetter(targetElementClass.prototype, attr, {
+            rewriteGetter(returnValue: string): string {
+                if (returnValue)
+                    return rewriteAttrSpecial(attr, returnValue, (url) => pademelonInstance.unrewriteUrl(url).url);
+                return returnValue;
             },
-            (setValue: string): string => {
-                return rewriteAttrSpecial(attr, setValue, (url) => pademelonInstance.rewriteUrl(url, mod));
+            rewriteSetter(setValue: string): string {
+                if (setValue) {
+                    return rewriteAttrSpecial(attr, setValue, (url) => pademelonInstance.rewriteUrl(url, mod));
+                }
+                return setValue;
             }
-        );
+        });
     }
 }
 
-function rewriteHTMLElements(pademelonInstance: Pademelon) {
+function rewriteHTMLElementsAttribute(pademelonInstance: Pademelon) {
     // tslint:disable-next-line:forin
     for (const elementClass in htmlElementClassRewrites) {
         for (const eachAttribute of htmlElementClassRewrites[elementClass]) {
@@ -100,4 +103,4 @@ function rewriteHTMLElements(pademelonInstance: Pademelon) {
     }
 }
 
-export { rewriteHTMLElements, htmlElementClassRewrites };
+export { rewriteHTMLElementsAttribute, htmlElementClassRewrites };
