@@ -1,5 +1,5 @@
 const urlSchemes = ['http://', 'https://', 'ws://', 'wss://', '//'];
-const allowedModRegex = /^\d*[a-z]+_$/;
+const allowedModRegex = /^\d*[a-z]+_$|^$/;
 const websocketUrlRegex = /^wss?:\/\//i;
 const httpUrlRegex = /^http(s)?:\/\//i;
 const nonRelativeRegex = /^\/\/|^(http|ws)s?:\/\//i;

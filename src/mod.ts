@@ -1,8 +1,9 @@
 import { allowedModRegex } from './rewriters/UrlRewriter';
 
-type modTypes = 'javascript' | 'stylesheet' | 'webworker' | 'serviceworker' | 'raw' | 'api';
+type modTypes = 'html' | 'javascript' | 'stylesheet' | 'webworker' | 'serviceworker' | 'raw' | 'api';
 
 const TYPE_TO_MOD: { [mod in modTypes]: string } = {
+    html: '',
     javascript: 'js_',
     stylesheet: 'cs_',
     webworker: 'ww_',
@@ -32,5 +33,13 @@ function typeToMod(type?: modTypes): string {
     }
     return '';
 }
+function modToType(mod?: string): modTypes {
+    for (const eachType in TYPE_TO_MOD) {
+        if (TYPE_TO_MOD[eachType as modTypes] === mod) {
+            return eachType as modTypes;
+        }
+    }
+    return 'raw';
+}
 
-export { typeToMod, modTypes };
+export { typeToMod, modToType, modTypes };

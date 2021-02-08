@@ -4,6 +4,7 @@
         "**/*.test.ts",
         "**/*.mock.ts",
         "src/browser-module.ts",
-        "src/browser-rewrites"
+        "src/browser-rewrites",
+        "src/dev-server.ts"
     ]
 }

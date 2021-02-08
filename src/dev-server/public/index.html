@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+        function go() {
+            var input = document.getElementById('url-target');
+            if (input.value) {
+                window.open('${pademelon.options.pathnamePrefix}' + input.value);
+            } else {
+                alert('Please provide a link.');
+            }
+        }
+    </script>
+    <input type='text' placeholder='https://www.google.com' id='url-target' onkeydown='if(event.key==="Enter") go()' />
+    <button onclick='go()'>Go!</button>
+</body>
+
+</html>

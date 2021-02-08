@@ -20,7 +20,7 @@ Other commands:
 - `builddoc`: uses typedoc to generate docs from tsdoc
 - `build`: builds entire src/ using typescript (outputs to lib/) and webpack (outputs to dist/)
 - `prepack`: builds using production settings. also runs tests. this is run automatically before npm generates the tarball
-- `demotest`: runs demo-server.ts
+- `devtest`: runs dev-server.ts
 - `dev-server`: same thing as above but any changes you save will recompile ts files
 - `format`: formats all ts files according to the prettier format standard
 - `lint`: lints ts files to make sure code is using conventional practices
