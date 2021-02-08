@@ -60,7 +60,10 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
                 proxyRes = decompressResponse(proxyRes);
                 delete proxyRes.headers['content-encoding'];
                 res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
-                res.end(this.modHandler[modType as modifierModsType](await streamToString(proxyRes), req.url || ''));
+                const modifiedResponse = this.modHandler[modType as modifierModsType](await streamToString(proxyRes), req.url || '');
+                if(proxyRes.headers['content-length'] !== undefined)
+                    proxyRes.headers['content-length'] = modifiedResponse.length.toString();
+                res.end(modifiedResponse);
             } catch (e) {
                 this.emit('error', new Error(e));
                 if (!res.headersSent) res.writeHead(500);
@@ -97,7 +100,6 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
      * @name serverToClientHeaderRewrites
      */
     public serverToClientHeaderRewrites(proxyRes: IncomingMessage, req: IncomingMessage) {
-        delete proxyRes.headers['content-length'];
         delete proxyRes.headers['content-security-policy'];
         delete proxyRes.headers.link;
         if (proxyRes.headers.location)
