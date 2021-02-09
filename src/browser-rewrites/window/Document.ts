@@ -6,24 +6,24 @@ function injectPademelonIntoEmptyIFrame(
     iframe: HTMLIFrameElement,
     executeImmediately = false
 ) {
-    if (
-        (!iframe.src || iframe.src === 'about:blank') &&
-        iframe.contentDocument &&
-        iframe.contentWindow &&
-        !('Pademelon' in iframe.contentWindow)
-    ) {
-        const loadPademelon = () => {
-            if (!iframe.contentDocument || !iframe.contentWindow || 'Pademelon' in iframe.contentWindow) return;
+    const loadPademelon = () => {
+        if (
+            !iframe.src ||
+            iframe.src === 'about:blank' ||
+            !iframe.contentDocument ||
+            !iframe.contentWindow ||
+            'Pademelon' in iframe.contentWindow
+        )
+            return;
 
-            const pademelonInject = iframe.contentDocument.createElement('script');
-            pademelonInject.text =
-                pademelonInstance.getPademelonDist() + pademelonInstance.generateDefaultPademelonInitCode();
+        const pademelonInject = iframe.contentDocument.createElement('script');
+        pademelonInject.text =
+            pademelonInstance.getPademelonDist() + pademelonInstance.generateDefaultPademelonInitCode();
 
-            iframe.contentDocument.head.appendChild(pademelonInject);
-        };
-        iframe.addEventListener('load', loadPademelon);
-        if (executeImmediately) loadPademelon();
-    }
+        iframe.contentDocument.head.appendChild(pademelonInject);
+    };
+    iframe.addEventListener('load', loadPademelon);
+    if (executeImmediately) loadPademelon();
 }
 
 function rewriteDocumentProto(pademelonInstance: Pademelon) {
