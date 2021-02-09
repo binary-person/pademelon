@@ -5,14 +5,14 @@ import { typeToMod } from './mod';
 import { htmlBrowserRewriter } from './rewriters/html-rewriter-browser';
 import { unrewriteUrlType } from './rewriters/UrlRewriter';
 
-type globalizeFunctionType = (funcName: string) => boolean;
+type globalizeVariableType = (funcName: string) => boolean;
 
 /**
  * @extends BasePademelon
  */
 class Pademelon extends BasePademelon {
     public readonly modifiedWindow = generateModifiedWindow(this);
-    public funcLookupChain: globalizeFunctionType[] = [];
+    public varLookupChain: globalizeVariableType[] = [];
 
     private pademelonDistJS = '';
 
@@ -43,8 +43,8 @@ class Pademelon extends BasePademelon {
     public runFuncLookupChain(funcName: string) {
         // since the last script always overrides its variable on all others,
         // run a lookup starting from the last script
-        for (let i = this.funcLookupChain.length - 1; i >= 0; i--) {
-            if (this.funcLookupChain[i](funcName)) {
+        for (let i = this.varLookupChain.length - 1; i >= 0; i--) {
+            if (this.varLookupChain[i](funcName)) {
                 return;
             }
         }
