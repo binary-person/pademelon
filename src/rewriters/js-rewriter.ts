@@ -10,7 +10,7 @@
  *   - it is ES6
  *   - it violates ES5 strict mode
  *   - function declarations are not exposed correctly, so wrapping in a local
- *     scope will be unfeasible. However, we can have an eval runner that
+ *     scope will be unfeasible. However, we can have an eval runner (or closure) that
  *     exposes its local scope and whenever another part of the website
  *     wants to access a global function variable, we can traverse through the
  *     chain of evals and add it to the window object if it exists
