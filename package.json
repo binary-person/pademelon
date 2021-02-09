@@ -8,7 +8,7 @@
         "jesttest": "jest --config jestconfig.json --runInBand",
         "builddoc": "typedoc src/nodejs-module.ts src/browser-module.ts",
         "build": "rm -rf lib/* && tsc && webpack-cli",
-        "prepack": "npm test && tsc --project tsconfig.prod.json && webpack-cli --mode='production'",
+        "prepack": "npm test && rm -rf lib/* && tsc --project tsconfig.prod.json && webpack-cli --mode='production'",
         "devtest": "npm run build && node lib/dev-server/index.js",
         "dev-server": "concurrently 'webpack-cli --watch' 'tsc --watch' 'nodemon --watch lib lib/dev-server/index.js'",
         "format": "prettier --write 'src/**/*.ts'",
