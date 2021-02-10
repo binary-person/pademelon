@@ -15,9 +15,10 @@ type bindCacheType = {
 
 const primitives = [Boolean, Number, String, BigInt, Symbol];
 
-// important for passing test262 unit tests
 function doNotBindFunction(func: any): boolean {
     if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
+    // primitives don't care if they aren't binded to the window object, and also,
+    // avoid binding them to pass test262 unit tests
     if (primitives.includes(func)) return true;
     // the only reason we want to bind functions is some native functions on the window object
     // don't like it when they are called with the 'this' not binded to a window.
