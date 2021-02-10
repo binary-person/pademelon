@@ -13,6 +13,20 @@ type bindCacheType = {
     };
 };
 
+const primitives = [Boolean, Number, String, BigInt, Symbol];
+
+// important for passing test262 unit tests
+function doNotBindFunction(func: any): boolean {
+    if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
+    if (primitives.includes(func)) return true;
+    // the only reason we want to bind functions is some native functions on the window object
+    // don't like it when they are called with the 'this' not binded to a window.
+    // if we were to extend the binding to other functions created by the page's js,
+    // we will create all sorts of problems
+    if (!/\{\s+\[native code\]/.test(Function.prototype.toString.call(func))) return true;
+    return false;
+}
+
 function hasProperty(obj: any, prop: string | number | symbol) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
 }
@@ -37,7 +51,10 @@ function interceptObject(
         isExtensible: () => Reflect.isExtensible(targetObject),
         preventExtensions: () => Reflect.preventExtensions(targetObject),
         defineProperty: (_target, prop, descriptor) => Reflect.defineProperty(targetObject, prop, descriptor),
-        ownKeys: () => Reflect.ownKeys(targetObject),
+        ownKeys: () => {
+            Object.defineProperties(carbonCopy, Object.getOwnPropertyDescriptors(targetObject));
+            return Reflect.ownKeys(targetObject);
+        },
         has: (_target, prop) => {
             getHook(prop);
             return Reflect.has(targetObject, prop);
@@ -80,7 +97,8 @@ function interceptObject(
                 return Reflect.get(modifiedProperties, prop, receiver);
             } else {
                 const value = Reflect.get(targetObject, prop, receiver);
-                if (typeof value === 'function') {
+
+                if (typeof value === 'function' && !doNotBindFunction(value)) {
                     if (!(prop in bindCache) || bindCache[prop].originalFunc !== value) {
                         bindCache[prop] = {
                             originalFunc: value,

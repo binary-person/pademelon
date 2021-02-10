@@ -280,13 +280,24 @@ describe('interceptObject', () => {
                 return this;
             };
 
-            it('should bind property function', () => {
-                expect(globalObj.func()).toStrictEqual(globalObj);
-                expect(interceptedObj.func()).toStrictEqual(globalObj);
+            it('should not bind property function if non native function', () => {
+                expect(globalObj.func()).toBe(globalObj);
+                expect(interceptedObj.func()).toBe(interceptedObj);
             });
-            it('should bind function on interceptedObject', () => {
-                expect(globalObj.funcIntercept()).toStrictEqual(globalObj);
-                expect(interceptedObj.funcIntercept()).toStrictEqual(globalObj);
+            it('should not bind function on interceptedObject if non native function', () => {
+                expect(globalObj.funcIntercept()).toBe(globalObj);
+                expect(interceptedObj.funcIntercept()).toBe(interceptedObj);
+            });
+            it('should bind property function if native', () => {
+                // force interceptObject to bind the functions for the rest of the tests
+                Function.prototype.toString = () => 'function () { [native code] }';
+
+                expect(globalObj.func()).toBe(globalObj);
+                expect(interceptedObj.func()).toBe(globalObj);
+            });
+            it('should bind function on interceptedObject if native', () => {
+                expect(globalObj.funcIntercept()).toBe(globalObj);
+                expect(interceptedObj.funcIntercept()).toBe(globalObj);
             });
             it('two binded functions should be equal', () => {
                 expect(globalObj.func).toBe(globalObj.func);
