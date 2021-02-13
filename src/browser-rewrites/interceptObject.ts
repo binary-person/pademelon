@@ -42,7 +42,7 @@ function interceptObject(
     const bindCache: bindCacheType = Object.create(null);
 
     // tslint:disable-next-line
-    const carbonCopy = typeof targetObject === 'function' ? function () {} : {};
+    const carbonCopy = typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () { } : () => { }) : {};
     Object.setPrototypeOf(carbonCopy, targetObject);
 
     const proxyObject = new Proxy(carbonCopy, {
@@ -52,10 +52,7 @@ function interceptObject(
         isExtensible: () => Reflect.isExtensible(targetObject),
         preventExtensions: () => Reflect.preventExtensions(targetObject),
         defineProperty: (_target, prop, descriptor) => Reflect.defineProperty(targetObject, prop, descriptor),
-        ownKeys: () => {
-            Object.defineProperties(carbonCopy, Object.getOwnPropertyDescriptors(targetObject));
-            return Reflect.ownKeys(targetObject);
-        },
+        ownKeys: () => Reflect.ownKeys(targetObject),
         has: (_target, prop) => {
             getHook(prop);
             return Reflect.has(targetObject, prop);
