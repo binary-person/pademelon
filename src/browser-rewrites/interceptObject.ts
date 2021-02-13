@@ -13,7 +13,7 @@ type bindCacheType = {
     };
 };
 
-const primitives = [Boolean, Number, String, BigInt, Symbol];
+const primitives = [Boolean, Number, String, BigInt, Symbol, Object];
 
 function doNotBindFunction(func: any): boolean {
     if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
@@ -42,12 +42,12 @@ function interceptObject(
     const bindCache: bindCacheType = Object.create(null);
 
     // tslint:disable
-    const carbonCopy =
-        typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () {} : () => {}) : {};
+    const carbonCopy = typeof targetObject === 'function' ? function () {} : {};
+    if (!hasProperty(targetObject, 'prototype')) Reflect.deleteProperty(targetObject, 'prototype');
     Object.setPrototypeOf(carbonCopy, targetObject);
     // tslint:enable
 
-    const proxyObject = new Proxy(carbonCopy, {
+    const proxyObject: any = new Proxy(carbonCopy, {
         getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
         setPrototypeOf: (_target, prop) => Reflect.setPrototypeOf(targetObject, prop),
         construct: (_target, argArray, newTarget) => Reflect.construct(targetObject, argArray, newTarget),
