@@ -41,9 +41,11 @@ function interceptObject(
 ): any {
     const bindCache: bindCacheType = Object.create(null);
 
-    // tslint:disable-next-line
-    const carbonCopy = typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () { } : () => { }) : {};
+    // tslint:disable
+    const carbonCopy =
+        typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () {} : () => {}) : {};
     Object.setPrototypeOf(carbonCopy, targetObject);
+    // tslint:enable
 
     const proxyObject = new Proxy(carbonCopy, {
         getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
