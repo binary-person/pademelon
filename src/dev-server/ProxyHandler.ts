@@ -48,9 +48,8 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
             throw new Error('This should never throw. How did it get pass the first check?? Request URL: ' + req.url);
         }
 
-        const modType = unrewrittenUrl.mod
-            ? modToType(unrewrittenUrl.mod)
-            : '' || this.contentTypeToMod(proxyRes.headers['content-type']);
+        const contentTypeMod = this.contentTypeToMod(proxyRes.headers['content-type']);
+        const modType = unrewrittenUrl.mod && contentTypeMod === 'raw' ? modToType(unrewrittenUrl.mod) : contentTypeMod;
 
         if (this.passthroughMods.includes(modType as passThroughModsType)) {
             res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
@@ -64,8 +63,7 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
                     req.url || ''
                 );
 
-                if (proxyRes.headers['content-length'] !== undefined)
-                    proxyRes.headers['content-length'] = modifiedResponse.length.toString();
+                delete proxyRes.headers['content-length'];
 
                 res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);
                 res.end(modifiedResponse);
