@@ -6,6 +6,8 @@ import Pademelon = require('../../browser-module');
 import { interceptObject } from '../interceptObject';
 import { modifiedDocument } from './document';
 import { modifiedLocation } from './location';
+import { modifiedParent } from './parent';
+import { modifiedSelf } from './self';
 import { modifiedTop } from './top';
 import { modifiedRecursiveWindow } from './window';
 
@@ -15,7 +17,9 @@ const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
     modifiedLocation,
     modifiedRecursiveWindow,
     modifiedDocument,
-    modifiedTop
+    modifiedTop,
+    modifiedSelf,
+    modifiedParent
 ];
 
 function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Window = window) {
