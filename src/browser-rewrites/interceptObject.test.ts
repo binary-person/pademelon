@@ -39,7 +39,7 @@ describe('interceptObject', () => {
             Object.defineProperty(modifiedProperties, 'immutableValue', {
                 value: 'modifiedValue'
             });
-            const interceptedObj = interceptObject(globalObj, modifiedProperties);
+            const interceptedObj = interceptObject(globalObj, { modifiedProperties });
 
             it('globalObj holds unmodifiedValue and interceptedObj holds modifiedValue', () => {
                 expect(globalObj.immutableValue).toEqual('unmodifiedValue');
@@ -65,7 +65,9 @@ describe('interceptObject', () => {
         describe('mutable value', () => {
             globalObj.mutableValue = 'unmodifiedValue';
             const interceptedObj = interceptObject(globalObj, {
-                mutableValue: 'modifiedValue'
+                modifiedProperties: {
+                    mutableValue: 'modifiedValue'
+                }
             });
 
             it('globalObj holds unmodifiedValue and interceptedObj holds modifiedValue', () => {
@@ -92,8 +94,10 @@ describe('interceptObject', () => {
                 }
             });
             const interceptedObj = interceptObject(globalObj, {
-                get immutableGetter() {
-                    return 'modifiedValue';
+                modifiedProperties: {
+                    get immutableGetter() {
+                        return 'modifiedValue';
+                    }
                 }
             });
 
@@ -126,7 +130,7 @@ describe('interceptObject', () => {
             Object.defineProperty(modifiedProperties, 'immutableSetter', {
                 set: interceptedSetter
             });
-            const interceptedObj = interceptObject(globalObj, modifiedProperties);
+            const interceptedObj = interceptObject(globalObj, { modifiedProperties });
 
             it('globalObj setter gets called with setGlobalObj and interceptedObj never gets called', () => {
                 globalObj.immutableSetter = 'setGlobalObj';
@@ -165,7 +169,7 @@ describe('interceptObject', () => {
             Object.defineProperty(globalObj, 'gopd', globalGopd);
             const modifiedProperties = {};
             Object.defineProperty(modifiedProperties, 'gopd', interceptedGopd);
-            const interceptedObj = interceptObject(globalObj, modifiedProperties);
+            const interceptedObj = interceptObject(globalObj, { modifiedProperties });
 
             it('globalObj holds global and interceptedObj holds intercept', () => {
                 expect(globalObj.gopd).toEqual('global');
