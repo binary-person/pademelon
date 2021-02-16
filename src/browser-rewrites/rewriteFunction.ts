@@ -1,4 +1,4 @@
-import { fakeToString } from './fakeToString';
+import { interceptObject } from './interceptObject';
 
 type rewriteFuncParams = (originalFunc: (...args: any[]) => void, ...args: any[]) => any[];
 type rewriteReturnParams = (originalFunc: (...args: any[]) => void, originalReturnValue: any, ...args: any[]) => any;
@@ -37,24 +37,17 @@ function rewriteFunction(
         throw new TypeError('At least one of the functions must be defined');
     }
     const originalFunc = obj[prop];
-    obj[prop] = function (...args: any[]) {
-        args = interceptArgs ? interceptArgs.call(this, originalFunc.bind(this), ...args) : args;
-        let returnValue: any;
-        if (useNew) {
-            returnValue = new originalFunc(...args);
-        } else {
-            returnValue = originalFunc.apply(this, args);
-        }
-        if (interceptReturn) {
-            returnValue = interceptReturn.call(this, originalFunc.bind(this), returnValue, ...args);
-        }
-        if (hookAfterCall) {
-            hookAfterCall.call(this, originalFunc.bind(this), returnValue, ...args);
-        }
-        return returnValue;
-    };
-    Object.defineProperties(obj[prop], Object.getOwnPropertyDescriptors(originalFunc));
-    fakeToString(obj[prop], prop);
+
+    obj[prop] = interceptObject(originalFunc, {
+        rewriteArgs(args) {
+            return interceptArgs ? interceptArgs.call(this, originalFunc.bind(this), ...args) : args;
+        },
+        rewriteReturn(returnValue, args) {
+            if (interceptReturn) return interceptReturn.call(this, originalFunc.bind(this), returnValue, ...args);
+            return returnValue;
+        },
+        parentObject: obj
+    });
 }
 
 export { rewriteFunction, objRewriteType };

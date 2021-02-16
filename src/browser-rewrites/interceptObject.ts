@@ -15,6 +15,10 @@ type bindCacheType = {
 
 const primitives = [Boolean, Number, String, BigInt, Symbol, Object];
 
+// store a reference to toString because rewriteWindowFunction will overwrite Function, resulting
+// in an infinite loop of referencing its own prototype property
+const funcToString = Function.prototype.toString;
+
 function doNotBindFunction(func: any): boolean {
     if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
     // primitives don't care if they aren't binded to the window object, and also,
@@ -24,12 +28,16 @@ function doNotBindFunction(func: any): boolean {
     // don't like it when they are called with the 'this' not binded to a window.
     // if we were to extend the binding to other functions created by the page's js,
     // we will create all sorts of problems
-    if (!/\{\s+\[native code\]/.test(Function.prototype.toString.call(func))) return true;
+    if (!/\{\s+\[native code\]/.test(funcToString.call(func))) return true;
     return false;
 }
 
 function hasProperty(obj: any, prop: string | number | symbol) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+function isEmptyObj(obj: any): boolean {
+    return Object.keys(Object.getOwnPropertyDescriptors(obj)).length === 0;
 }
 
 function interceptObject(
@@ -38,42 +46,65 @@ function interceptObject(
         modifiedProperties = {},
         parentObject,
         parentProxyObject,
-        getHook = () => undefined
+        getHook = () => undefined,
+        rewriteArgs,
+        rewriteReturn,
+        useOriginalTarget = isEmptyObj(modifiedProperties)
     }: {
         modifiedProperties?: modifiedPropertiesType;
         parentObject?: any;
         parentProxyObject?: any;
         getHook?: (prop: string | number | symbol) => void;
+        rewriteArgs?: (args: any[], isConstructor: boolean) => any[];
+        rewriteReturn?: (returnValue: any, args: any[], isConstructor: boolean) => any;
+        useOriginalTarget?: boolean;
     } = {}
 ): any {
+    if (useOriginalTarget && !isEmptyObj(modifiedProperties)) {
+        throw new TypeError('Cannot use original target and have a non-empty modifiedProperties');
+    }
+
     const bindCache: bindCacheType = Object.create(null);
 
     // tslint:disable
-    const carbonCopy = typeof targetObject === 'function' ? function () {} : {};
-    if (!hasProperty(targetObject, 'prototype')) Reflect.deleteProperty(targetObject, 'prototype');
+    let carbonCopy =
+        typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () {} : () => {}) : {};
     Object.setPrototypeOf(carbonCopy, targetObject);
     // tslint:enable
 
-    const proxyObject: any = new Proxy(carbonCopy, {
+    const proxyObject: any = new Proxy(useOriginalTarget ? targetObject : carbonCopy, {
         getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
         setPrototypeOf: (_target, prop) => Reflect.setPrototypeOf(targetObject, prop),
-        construct: (_target, argArray, newTarget) => Reflect.construct(targetObject, argArray, newTarget),
         isExtensible: () => Reflect.isExtensible(targetObject),
         preventExtensions: () => Reflect.preventExtensions(targetObject),
         defineProperty: (_target, prop, descriptor) => Reflect.defineProperty(targetObject, prop, descriptor),
         ownKeys: () => Reflect.ownKeys(targetObject),
         has: (_target, prop) => {
             getHook(prop);
+            Reflect.getOwnPropertyDescriptor(proxyObject, prop);
             return Reflect.has(targetObject, prop);
         },
-        apply: (_target, thisArg, argArray) => {
-            return Reflect.apply(
+        construct: (_target, argArray, newTarget) => {
+            const returnValue = Reflect.construct(
                 targetObject,
+                rewriteArgs ? rewriteArgs(argArray, true) : argArray,
+                newTarget
+            );
+            if (rewriteReturn) return rewriteReturn(returnValue, argArray, true);
+            return returnValue;
+        },
+        apply: (_target, thisArg, argArray) => {
+            thisArg =
                 parentObject && (!(thisArg || parentProxyObject) || thisArg === parentProxyObject)
                     ? parentObject
-                    : thisArg,
-                argArray
+                    : thisArg;
+            const returnValue = Reflect.apply(
+                targetObject,
+                thisArg,
+                rewriteArgs ? rewriteArgs.call(thisArg, argArray, false) : argArray
             );
+            if (rewriteReturn) return rewriteReturn.call(thisArg, returnValue, argArray, false);
+            return returnValue;
         },
         deleteProperty: (_target, prop: string) => {
             if (hasProperty(bindCache, prop)) {
@@ -85,6 +116,8 @@ function interceptObject(
             return Reflect.deleteProperty(targetObject, prop);
         },
         getOwnPropertyDescriptor(_target, prop) {
+            if (useOriginalTarget) return Reflect.getOwnPropertyDescriptor(targetObject, prop);
+
             let desc: PropertyDescriptor | undefined;
             if (hasProperty(modifiedProperties, prop)) {
                 desc = Reflect.getOwnPropertyDescriptor(modifiedProperties, prop);
@@ -95,34 +128,45 @@ function interceptObject(
                 return;
             }
             Reflect.defineProperty(carbonCopy, prop, desc);
-            return desc;
+            return Reflect.getOwnPropertyDescriptor(carbonCopy, prop);
         },
         get(_target: any, prop: string, receiver: any) {
+            if (useOriginalTarget) return Reflect.get(targetObject, prop, receiver);
+
             getHook(prop);
             receiver = receiver === proxyObject ? targetObject : receiver;
             if (hasProperty(modifiedProperties, prop)) {
                 return Reflect.get(modifiedProperties, prop, receiver);
             } else {
-                const value = Reflect.get(targetObject, prop, receiver);
+                let value = Reflect.get(targetObject, prop, receiver);
 
                 if (typeof value === 'function' && !doNotBindFunction(value)) {
                     if (!(prop in bindCache) || bindCache[prop].originalFunc !== value) {
                         bindCache[prop] = {
                             originalFunc: value,
                             bindedFunc: interceptObject(value, {
-                                parentObject: targetObject,
-                                parentProxyObject: proxyObject
+                                parentObject: rewriteArgs || rewriteReturn ? proxyObject : targetObject,
+                                parentProxyObject: proxyObject,
+                                useOriginalTarget: false
                             })
                         };
                     }
-                    return bindCache[prop].bindedFunc;
+
+                    value = bindCache[prop].bindedFunc;
                 } else if (prop in bindCache) {
                     delete bindCache[prop];
+                }
+
+                const originalDesc = Reflect.getOwnPropertyDescriptor(targetObject, prop);
+                if (originalDesc && !originalDesc.configurable && originalDesc.writable) {
+                    Reflect.set(carbonCopy, prop, value);
                 }
                 return value;
             }
         },
         set(_target: any, prop: string, value, receiver: any) {
+            if (useOriginalTarget) Reflect.set(targetObject, prop, value, receiver);
+
             receiver = receiver === proxyObject ? targetObject : receiver;
             if (hasProperty(modifiedProperties, prop)) {
                 return Reflect.set(modifiedProperties, prop, value);
@@ -130,6 +174,18 @@ function interceptObject(
             return Reflect.set(targetObject, prop, value);
         }
     });
+    // force cache all of non-configurable objects and add them to carbonCopy
+    const descs = Object.assign(
+        Object.getOwnPropertyDescriptors(targetObject),
+        Object.getOwnPropertyDescriptors(modifiedProperties)
+    );
+    for (const eachProp in descs) {
+        if (descs[eachProp] && !descs[eachProp].configurable && descs[eachProp].value) {
+            const value = Reflect.get(proxyObject, eachProp);
+            descs[eachProp].value = value;
+            Reflect.defineProperty(carbonCopy, eachProp, descs[eachProp]);
+        }
+    }
     return proxyObject;
 }
 
