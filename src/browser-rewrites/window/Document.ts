@@ -27,7 +27,7 @@ function injectPademelonIntoEmptyIFrame(
 }
 
 function rewriteDocumentProto(pademelonInstance: Pademelon) {
-    rewriteFunction(Document.prototype, 'createElement', false, {
+    rewriteFunction(Document.prototype, 'createElement', {
         hookAfterCall(_, element: Element, _tagName: string, _options?: any) {
             if (element instanceof HTMLIFrameElement) {
                 // inject pademelon into empty iframes
@@ -38,7 +38,7 @@ function rewriteDocumentProto(pademelonInstance: Pademelon) {
 }
 
 function patchCreateTreeWalker(pademelonInstance: Pademelon) {
-    rewriteFunction(Document.prototype, 'createTreeWalker', false, {
+    rewriteFunction(Document.prototype, 'createTreeWalker', {
         interceptArgs(_: any, root: Document, whatToShow?: any, filter?: any) {
             if (root === pademelonInstance.modifiedWindow.document) {
                 root = document;

@@ -9,7 +9,6 @@ type objRewriteType = { [key: string]: any };
  *
  * @param obj - property's object to rewrite
  * @param prop - property to rewrite
- * @param useNew - whether the target rewritten function should be called with 'new'
  * @param interceptArgs - interceptArgs gets executed and its array return value will be used to replace
  * the args that will be passed on to the original function.
  * @param interceptReturn - after the function call, its return value will be passed to interceptReturn
@@ -19,7 +18,6 @@ type objRewriteType = { [key: string]: any };
 function rewriteFunction(
     obj: objRewriteType,
     prop: string,
-    useNew: boolean,
     {
         interceptArgs,
         interceptReturn,

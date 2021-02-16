@@ -8,8 +8,8 @@ function rewriteHistory(pademelonInstance: Pademelon) {
         }
         return [data, title, url];
     };
-    rewriteFunction(history, 'pushState', false, { interceptArgs: funcWrapper });
-    rewriteFunction(history, 'replaceState', false, { interceptArgs: funcWrapper });
+    rewriteFunction(history, 'pushState', { interceptArgs: funcWrapper });
+    rewriteFunction(history, 'replaceState', { interceptArgs: funcWrapper });
 }
 
 export { rewriteHistory };

@@ -21,7 +21,7 @@ function rewriteAttrValue(
 }
 
 function rewriteElementProto(pademelonInstance: Pademelon) {
-    rewriteFunction(Element.prototype, 'setAttribute', false, {
+    rewriteFunction(Element.prototype, 'setAttribute', {
         interceptArgs(this: Element, _, attr: string, attrValue?: string) {
             if (typeof attrValue === 'string') {
                 attrValue = rewriteAttrValue(this, attr, attrValue, (url, mod) =>
@@ -31,7 +31,7 @@ function rewriteElementProto(pademelonInstance: Pademelon) {
             return [attr, attrValue];
         }
     });
-    rewriteFunction(Element.prototype, 'getAttribute', false, {
+    rewriteFunction(Element.prototype, 'getAttribute', {
         interceptReturn(this: Element, _, originalValue, attr: string) {
             if (typeof originalValue === 'string') {
                 return rewriteAttrValue(this, attr, originalValue, (url) => pademelonInstance.unrewriteUrl(url).url);

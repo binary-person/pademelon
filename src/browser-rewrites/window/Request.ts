@@ -4,7 +4,8 @@ import { rewriteFunction } from '../rewriteFunction';
 
 function rewriteRequest(pademelonInstance: Pademelon) {
     if (!window.Request) window.Request = (() => undefined) as any;
-    rewriteFunction(window, 'Request', true, {
+    rewriteFunction(window, 'Request', {
+        // reminder that this is a constructor so it returns an instance of Request
         interceptArgs(_Request: any, input: string | Request, initOpts: Request) {
             let url: string;
             if (typeof input === 'string') {

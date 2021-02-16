@@ -3,7 +3,7 @@ import { typeToMod } from '../../mod';
 import { rewriteFunction } from '../rewriteFunction';
 
 function rewriteXMLHttpRequest(pademelonInstance: Pademelon) {
-    rewriteFunction(XMLHttpRequest.prototype, 'open', false, {
+    rewriteFunction(XMLHttpRequest.prototype, 'open', {
         interceptArgs(_, method: string, url: string, ...otherArgs) {
             return [method, pademelonInstance.rewriteUrl(url, typeToMod('api')), ...otherArgs];
         }

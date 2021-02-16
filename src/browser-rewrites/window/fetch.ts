@@ -8,7 +8,7 @@ import { rewriteFunction } from '../rewriteFunction';
 function rewritefetch(pademelonInstance: Pademelon) {
     // polyfill empty function to make jest tests run
     if (!window.fetch) window.fetch = (() => undefined) as any;
-    rewriteFunction(window, 'fetch', false, {
+    rewriteFunction(window, 'fetch', {
         interceptArgs(_, input: string | Request, initOpts: Request) {
             return [new Request(input, initOpts)];
         },

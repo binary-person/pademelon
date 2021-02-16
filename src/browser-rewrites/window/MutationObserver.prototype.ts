@@ -2,7 +2,7 @@ import Pademelon = require('../../browser-module');
 import { rewriteFunction } from '../rewriteFunction';
 
 function patchMutationObserver(pademelonInstance: Pademelon) {
-    rewriteFunction(MutationObserver.prototype, 'observe', false, {
+    rewriteFunction(MutationObserver.prototype, 'observe', {
         interceptArgs(_: any, target: Node, options?: any) {
             if (target === pademelonInstance.modifiedWindow.document) {
                 target = document;
