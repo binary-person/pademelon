@@ -21,6 +21,7 @@
  * format
  */
 
+import { fakeToString } from './fakeToString';
 import { interceptObject } from './interceptObject';
 
 type anyObjType = { [key: string]: any };
@@ -199,7 +200,7 @@ describe('interceptObject', () => {
     });
     describe('mirroring properties', () => {
         const globalObj: anyObjType = {};
-        const interceptedObj = interceptObject(globalObj, {});
+        const interceptedObj = interceptObject(globalObj, { useOriginalTarget: false });
 
         describe('mutable values', () => {
             it('should mutate both when mutating globalObj', () => {
@@ -294,7 +295,8 @@ describe('interceptObject', () => {
             });
             it('should bind property function if native', () => {
                 // force interceptObject to bind the functions for the rest of the tests
-                Function.prototype.toString = () => 'function () { [native code] }';
+                fakeToString(globalObj.func);
+                fakeToString(globalObj.funcIntercept);
 
                 expect(globalObj.func()).toBe(globalObj);
                 expect(interceptedObj.func()).toBe(globalObj);
@@ -332,6 +334,9 @@ describe('interceptObject', () => {
                     return this;
                 };
                 interceptedObj.funcIntercept.testValue = '123';
+
+                fakeToString(globalObj.func.propFunc);
+                fakeToString(globalObj.funcIntercept.propFunc);
 
                 expect(globalObj.func.propFunc.call(thisObj)).toBe(thisObj);
                 expect(globalObj.funcIntercept.propFunc.call(thisObj)).toBe(thisObj);
