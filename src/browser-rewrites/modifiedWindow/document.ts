@@ -8,7 +8,7 @@ import { modifiedLocation } from './location';
 function modifiedDocument(pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window) {
     const modifiedDocumentProps = {};
     modifiedLocation(pademelonInstance, modifiedDocumentProps, targetWindow);
-    const interceptedDocument = interceptObject(document, modifiedDocumentProps);
+    const interceptedDocument = interceptObject(document, { modifiedProperties: modifiedDocumentProps });
     Object.defineProperty(modifiedWindow, 'document', {
         enumerable: true,
         get() {

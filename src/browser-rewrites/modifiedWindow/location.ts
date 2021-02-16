@@ -58,7 +58,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object, 
         }
     });
 
-    const locationObj = interceptObject(targetWindow.location, modifiedLocationProps);
+    const locationObj = interceptObject(targetWindow.location, { modifiedProperties: modifiedLocationProps });
 
     // handle page code running targetWindow.location's setter like this: targetWindow.location = "newlocation"
     Object.defineProperty(modifiedWindow, 'location', {
