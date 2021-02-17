@@ -4,6 +4,7 @@ import { rewriteElementProto } from './Element.prototype';
 import { rewritefetch } from './fetch';
 import { rewriteWindowFunction } from './Function';
 import { rewriteHistory } from './history';
+import { rewriteAnchorElementProto } from './HTMLAnchorElement.prototype';
 import { rewriteHTMLElementsAttribute } from './HTMLElementsAttribute';
 import { rewriteScriptElementProto } from './HTMLScriptElement.prototype';
 import { patchMutationObserver } from './MutationObserver.prototype';
@@ -16,18 +17,32 @@ import { rewriteXMLHttpRequest } from './XMLHttpRequest.prototype';
 type rewriterFuncParams = (pademelonInstance: Pademelon) => void;
 
 const windowRewriters: rewriterFuncParams[] = [
+    // native api network requests
     rewriteXMLHttpRequest,
     rewritefetch,
     rewriteRequest,
     rewriteResponse,
+
+    // other native apis that utilize networking
     rewriteNavigatorSendBeacon,
+
+    // navigation
     rewriteHistory,
+
+    // DOM rewrites
     rewriteNodeProto,
     rewriteDocumentProto,
     rewriteHTMLElementsAttribute,
     rewriteElementProto,
+
+    // DOM specific rewrites
     rewriteScriptElementProto,
+    rewriteAnchorElementProto,
+
+    // other uncategorized rewrites
     rewriteWindowFunction,
+
+    // patches
     patchCreateTreeWalker,
     patchMutationObserver
 ];
