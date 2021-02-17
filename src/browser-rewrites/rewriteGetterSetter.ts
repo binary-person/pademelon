@@ -19,6 +19,8 @@ type hookAfterSetterFunc = (setterValue: any, modifiedSetterValue: any) => void;
  * happen. If !rewriteSetter, the original setter will be used instead
  * @param hookAfterGetter - executed after call to original getter
  * @param hookAfterSetter - executed after call to original setter
+ * @param preventCallToGetter
+ * @param preventCallToSetter
  */
 function rewriteGetterSetter(
     obj: objRewriteType,
@@ -27,16 +29,27 @@ function rewriteGetterSetter(
         rewriteGetter,
         rewriteSetter,
         hookAfterGetter,
-        hookAfterSetter
+        hookAfterSetter,
+        preventCallToGetter,
+        preventCallToSetter
     }: {
         rewriteGetter?: rewriteGetterReturnFunc;
         rewriteSetter?: rewriteSetterFunc;
         hookAfterGetter?: hookAfterGetterFunc;
         hookAfterSetter?: hookAfterSetterFunc;
+        preventCallToGetter?: boolean;
+        preventCallToSetter?: boolean;
     }
 ) {
-    if (!rewriteGetter && !rewriteSetter && !hookAfterGetter && !hookAfterSetter) {
-        throw new TypeError('At least one of rewrites or hooks must be set');
+    if (
+        !rewriteGetter &&
+        !rewriteSetter &&
+        !hookAfterGetter &&
+        !hookAfterSetter &&
+        preventCallToGetter === undefined &&
+        preventCallToSetter === undefined
+    ) {
+        throw new TypeError('At least one of rewrites or hooks or flags must be set');
     }
     const propDescriptor = Object.getOwnPropertyDescriptor(obj, prop);
     if (!propDescriptor) {
@@ -54,7 +67,9 @@ function rewriteGetterSetter(
         propDescriptor.get = function () {
             const originalReturnValue = originalGetter.call(this);
             const modifiedReturnValue = rewriteGetter
-                ? rewriteGetter.call(this, originalReturnValue)
+                ? preventCallToGetter
+                    ? undefined
+                    : rewriteGetter.call(this, originalReturnValue)
                 : originalReturnValue;
             if (hookAfterGetter) hookAfterGetter.call(this, originalReturnValue, modifiedReturnValue);
             return modifiedReturnValue;
@@ -65,7 +80,7 @@ function rewriteGetterSetter(
         const originalSetter = propDescriptor.set;
         propDescriptor.set = function (value: any) {
             const modifiedValue = rewriteSetter ? rewriteSetter.call(this, value) : value;
-            originalSetter.call(this, modifiedValue);
+            if (!preventCallToSetter) originalSetter.call(this, modifiedValue);
             if (hookAfterSetter) hookAfterSetter.call(this, value, modifiedValue);
         };
         fakeToString(propDescriptor.set, prop);
