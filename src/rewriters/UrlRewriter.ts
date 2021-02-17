@@ -4,7 +4,7 @@ const websocketUrlRegex = /^wss?:\/\//i;
 const httpUrlRegex = /^http(s)?:\/\//i;
 const nonRelativeRegex = /^\/\/|^(http|ws)s?:\/\//i;
 
-const defaultPrefixBlacklist = ['data:', 'blob:', 'about:', 'ftp:', 'file:'];
+const defaultPrefixBlacklist = ['data:', 'blob:', 'about:', 'ftp:', 'file:', 'javascript:'];
 const defaultUrlBlacklist = ['about:blank'];
 
 interface UrlRewriterOptions {
