@@ -32,6 +32,6 @@
                 }
             }
         ],
-        "tsdoc/syntax": "warn"
+        "tsdoc/syntax": "off"
     }
 }
