@@ -1,6 +1,6 @@
 import Pademelon = require('../../browser-module');
 
-function modifiedRecursiveWindow(pademelonInstance: Pademelon, modifiedWindow: object) {
+function modifiedRecursiveWindow(pademelonInstance: Pademelon, modifiedWindow: object): void {
     Object.defineProperty(modifiedWindow, 'window', {
         enumerable: true,
         get() {

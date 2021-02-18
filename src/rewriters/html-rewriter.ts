@@ -79,7 +79,11 @@ function failbackHtmlRewriter(htmlText: string, urlRewriteFunc: htmlUrlRewriter)
     });
 }
 
-function rewriteAttribute(element: any, attributeName: string, callbackRewrite: (attributeValue: string) => string) {
+function rewriteAttribute(
+    element: Element,
+    attributeName: string,
+    callbackRewrite: (attributeValue: string) => string
+) {
     const attributeValue = element.getAttribute(attributeName);
     if (attributeValue) {
         element.setAttribute(
@@ -90,12 +94,12 @@ function rewriteAttribute(element: any, attributeName: string, callbackRewrite: 
 }
 
 function recursiveRewriteHtml(
-    element: any,
+    element: Element,
     urlRewriteFunc: htmlUrlRewriter,
     cssRewriterFunc: strStrFunc,
     jsRewriterFunc: strStrFunc,
     recursive = true
-) {
+): void {
     switch (element.tagName) {
         case 'SCRIPT':
             element.removeAttribute('integrity');
@@ -138,7 +142,13 @@ function recursiveRewriteHtml(
         for (const eachChildNode of element.childNodes) {
             if (eachChildNode.nodeType === 1) {
                 // 1 === Node.ELEMENT_NODE
-                recursiveRewriteHtml(eachChildNode, urlRewriteFunc, cssRewriterFunc, jsRewriterFunc, recursive);
+                recursiveRewriteHtml(
+                    eachChildNode as Element,
+                    urlRewriteFunc,
+                    cssRewriterFunc,
+                    jsRewriterFunc,
+                    recursive
+                );
             }
         }
     }

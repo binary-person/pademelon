@@ -1,7 +1,7 @@
 import { generateModifiedWindow } from '.';
 import Pademelon = require('../../browser-module');
 
-function modifiedParent(pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window) {
+function modifiedParent(pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window): void {
     Object.defineProperty(modifiedWindow, 'parent', {
         enumerable: true,
         get() {

@@ -1,7 +1,7 @@
 import Pademelon = require('../../browser-module');
 import { rewriteGetterSetter } from '../rewriteGetterSetter';
 
-function rewriteNodeProto(pademelonInstance: Pademelon) {
+function rewriteNodeProto(pademelonInstance: Pademelon): void {
     rewriteGetterSetter(Node.prototype, 'textContent', {
         rewriteSetter(this: HTMLElement, setValue: string) {
             if (this instanceof HTMLScriptElement) {

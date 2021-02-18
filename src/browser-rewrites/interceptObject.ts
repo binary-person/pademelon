@@ -19,11 +19,11 @@ const primitives = [Boolean, Number, String, BigInt, Symbol, Object];
 // in an infinite loop of referencing its own prototype property
 const funcToString = Function.prototype.toString;
 
-function doNotBindFunction(func: any): boolean {
+function doNotBindFunction(func: () => void): boolean {
     if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
     // primitives don't care if they aren't binded to the window object, and also,
     // avoid binding them to pass test262 unit tests
-    if (primitives.includes(func)) return true;
+    if (primitives.includes(func as any)) return true;
     // the only reason we want to bind functions is some native functions on the window object
     // don't like it when they are called with the 'this' not binded to a window.
     // if we were to extend the binding to other functions created by the page's js,
@@ -40,8 +40,8 @@ function isEmptyObj(obj: any): boolean {
     return Object.keys(Object.getOwnPropertyDescriptors(obj)).length === 0;
 }
 
-function interceptObject(
-    targetObject: any,
+function interceptObject<A extends any[], R, T extends object | (((...args: A) => R) & { new (...args: A): R })>(
+    targetObject: T,
     {
         modifiedProperties = {},
         parentObject,
@@ -55,22 +55,21 @@ function interceptObject(
         parentObject?: any;
         parentProxyObject?: any;
         getHook?: (prop: string | number | symbol) => void;
-        rewriteArgs?: (args: any[], isConstructor: boolean) => any[];
-        rewriteReturn?: (returnValue: any, args: any[], isConstructor: boolean) => any;
+        rewriteArgs?: (args: A, isConstructor: boolean) => A;
+        rewriteReturn?: (returnValue: R, args: A, isConstructor: boolean) => R;
         useOriginalTarget?: boolean;
     } = {}
-): any {
+): typeof modifiedProperties & T {
     if (useOriginalTarget && !isEmptyObj(modifiedProperties)) {
         throw new TypeError('Cannot use original target and have a non-empty modifiedProperties');
     }
 
     const bindCache: bindCacheType = Object.create(null);
 
-    // tslint:disable
-    let carbonCopy =
+    const carbonCopy =
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () {} : () => {}) : {};
     Object.setPrototypeOf(carbonCopy, targetObject);
-    // tslint:enable
 
     const proxyObject: any = new Proxy(useOriginalTarget ? targetObject : carbonCopy, {
         getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
@@ -86,7 +85,7 @@ function interceptObject(
         },
         construct: (_target, argArray, newTarget) => {
             const returnValue = Reflect.construct(
-                targetObject,
+                targetObject as () => void,
                 rewriteArgs ? rewriteArgs(argArray, true) : argArray,
                 newTarget
             );
@@ -99,7 +98,7 @@ function interceptObject(
                     ? parentObject
                     : thisArg;
             const returnValue = Reflect.apply(
-                targetObject,
+                targetObject as () => void,
                 thisArg,
                 rewriteArgs ? rewriteArgs.call(thisArg, argArray, false) : argArray
             );

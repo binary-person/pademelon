@@ -14,14 +14,18 @@ describe('rewrite fetch, Request, and Response', () => {
     });
 
     it('should rewrite correctly', async () => {
-        window.Response = function (this: any, options: { url: string }) {
+        interface TestResponseInterface {
+            innerUrl: string;
+            url: string;
+        }
+        window.Response = function (this: TestResponseInterface, options: { url: string }) {
             this.innerUrl = options.url;
         } as any;
-        window.Response.prototype = {
+        window.Response.prototype = ({
             get url() {
                 return this.innerUrl;
             }
-        } as any;
+        } as TestResponseInterface) as any;
         // using jest mocks to create a new constructor, to fix '_Request is not a constructor'
         window.Request = jest.fn().mockImplementation((input: string | { url: string }) => {
             return typeof input === 'string' ? { url: input } : input;

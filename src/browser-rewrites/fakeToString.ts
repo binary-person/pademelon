@@ -17,7 +17,7 @@ function fakeToString(func: anyFunc, funcName = ''): anyFunc {
     return func;
 }
 
-const funcProto = Object.getPrototypeOf(Function);
+const funcProto = Function.prototype;
 const originalToString = funcProto.toString;
 funcProto.toString = function () {
     if (this.toString === toStringFunc) {

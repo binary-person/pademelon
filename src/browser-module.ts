@@ -18,7 +18,7 @@ class Pademelon extends BasePademelon {
 
     public windowRewriters: rewriterFuncParams[] = windowRewriters;
 
-    public initWindowRewrites() {
+    public initWindowRewrites(): void {
         for (const eachRewriter of this.windowRewriters) {
             if (typeof eachRewriter === 'function') {
                 eachRewriter(this);
@@ -27,7 +27,7 @@ class Pademelon extends BasePademelon {
             }
         }
     }
-    public getPademelonDist() {
+    public getPademelonDist(): string {
         if (this.pademelonDistJS) return this.pademelonDistJS;
         const request = new XMLHttpRequest();
         request.open('GET', this.getBrowserPademelonDistUrl(), false);
@@ -36,11 +36,11 @@ class Pademelon extends BasePademelon {
         return this.pademelonDistJS;
     }
 
-    public init() {
+    public init(): void {
         this.initWindowRewrites();
     }
 
-    public runFuncLookupChain(funcName: string) {
+    public runFuncLookupChain(funcName: string): void {
         // since the last script always overrides its variable on all others,
         // run a lookup starting from the last script
         for (let i = this.varLookupChain.length - 1; i >= 0; i--) {
@@ -50,7 +50,7 @@ class Pademelon extends BasePademelon {
         }
     }
 
-    public rewriteHTML(element: HTMLElement, recursive = true, proxyPath: string = window.location.pathname) {
+    public rewriteHTML(element: HTMLElement, recursive = true, proxyPath: string = window.location.pathname): void {
         htmlBrowserRewriter(
             element,
             (inputUrl, htmlUrlType) => {

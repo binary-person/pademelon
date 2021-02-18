@@ -1,9 +1,12 @@
 import { interceptObject } from './interceptObject';
 
-type rewriteFuncParams = (originalFunc: (...args: any[]) => void, ...args: any[]) => any[];
-type rewriteReturnParams = (originalFunc: (...args: any[]) => void, originalReturnValue: any, ...args: any[]) => any;
-type hookAfterCallFunc = (originalFunc: (...args: any[]) => void, returnValue: any, ...args: any[]) => void;
-type objRewriteType = { [key: string]: any };
+// primarily handles type issues
+function toBindOrNotToBind<F, T>(isConstructor: boolean, func: F, thisArg: T) {
+    if (!isConstructor && typeof func === 'function') {
+        return func.bind(thisArg);
+    }
+    return func;
+}
 
 /**
  *
@@ -13,39 +16,48 @@ type objRewriteType = { [key: string]: any };
  * the args that will be passed on to the original function.
  * @param interceptReturn - after the function call, its return value will be passed to interceptReturn
  * to rewrite the return value along with original args. this parameter is optional
- * @param hookAfterCall - gets called after everything
+ * @param hookAfterCall - gets called after everything but before the actual return (quite frankly
+ * impossible to do unless one uses setTimeout)
  */
-function rewriteFunction(
-    obj: objRewriteType,
-    prop: string,
+function rewriteFunction<A extends any[], R, F extends ((...args: A) => R) | { new (...args: A): R }>(
+    func: F,
     {
         interceptArgs,
         interceptReturn,
         hookAfterCall
     }: {
-        interceptArgs?: rewriteFuncParams;
-        interceptReturn?: rewriteReturnParams;
-        hookAfterCall?: hookAfterCallFunc;
+        interceptArgs?: (originalFunc: F, ...args: A) => Readonly<A>;
+        interceptReturn?: (originalFunc: F, originalReturnValue: R, ...args: A) => R;
+        hookAfterCall?: (originalFunc: F, returnValue: R, ...args: A) => void;
     }
-) {
-    if (typeof obj[prop] !== 'function') {
-        throw new TypeError(obj + '[' + prop + '] is not a function');
+): F {
+    if (typeof func !== 'function') {
+        throw new TypeError(func + ' is not a function');
     }
     if (!interceptArgs && !interceptReturn && !hookAfterCall) {
         throw new TypeError('At least one of the functions must be defined');
     }
-    const originalFunc = obj[prop];
+    const originalFunc = func;
 
-    obj[prop] = interceptObject(originalFunc, {
-        rewriteArgs(args) {
-            return interceptArgs ? interceptArgs.call(this, originalFunc.bind(this), ...args) : args;
+    return interceptObject(originalFunc, {
+        rewriteArgs(args: A, isConstructor) {
+            return interceptArgs
+                ? interceptArgs.call(this, toBindOrNotToBind(isConstructor, originalFunc, this), ...args)
+                : args;
         },
-        rewriteReturn(returnValue, args) {
-            if (interceptReturn) return interceptReturn.call(this, originalFunc.bind(this), returnValue, ...args);
+        rewriteReturn(returnValue: R, args: A, isConstructor) {
+            if (interceptReturn)
+                returnValue = interceptReturn.call(
+                    this,
+                    toBindOrNotToBind(isConstructor, originalFunc, this),
+                    returnValue,
+                    ...args
+                );
+            if (hookAfterCall)
+                hookAfterCall(toBindOrNotToBind(isConstructor, originalFunc, this), returnValue, ...args);
             return returnValue;
-        },
-        parentObject: obj
+        }
     });
 }
 
-export { rewriteFunction, objRewriteType };
+export { rewriteFunction };

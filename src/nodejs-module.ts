@@ -20,8 +20,7 @@ interface PademelonNodejsOptions extends BasePademelonOptions {
 class Pademelon extends BasePademelon {
     public options: PademelonNodejsOptions;
     constructor(options: PademelonNodejsOptions) {
-        // force typescript to ignore the additional properties of PademelonNodejsOptions
-        super((options as any) as BasePademelonOptions);
+        super(options);
         this.options = options;
     }
     public rewriteHTML(

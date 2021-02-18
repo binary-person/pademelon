@@ -22,7 +22,7 @@ const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
     modifiedParent
 ];
 
-function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Window = window) {
+function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Window = window): Window {
     // force "any" type on all objects to get webpack to stop screaming about
     // "Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{}'."
     const modifiedWindow = {};

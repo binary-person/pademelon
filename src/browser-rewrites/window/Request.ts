@@ -2,11 +2,11 @@ import Pademelon = require('../../browser-module');
 import { typeToMod } from '../../mod';
 import { rewriteFunction } from '../rewriteFunction';
 
-function rewriteRequest(pademelonInstance: Pademelon) {
+function rewriteRequest(pademelonInstance: Pademelon): void {
     if (!window.Request) window.Request = (() => undefined) as any;
-    rewriteFunction(window, 'Request', {
+    window.Request = rewriteFunction(window.Request, {
         // reminder that this is a constructor so it returns an instance of Request
-        interceptArgs(_Request: any, input: string | Request, initOpts: Request) {
+        interceptArgs(_Request, input: string | Request, initOpts?: Request) {
             let url: string;
             if (typeof input === 'string') {
                 url = input;
@@ -15,7 +15,9 @@ function rewriteRequest(pademelonInstance: Pademelon) {
             } else {
                 url = input;
             }
-            return [new _Request(pademelonInstance.rewriteUrl(url, typeToMod('api')), new _Request(input, initOpts))];
+            return [
+                new _Request(pademelonInstance.rewriteUrl(url, typeToMod('api')), new _Request(input, initOpts))
+            ] as const;
         }
     });
 }

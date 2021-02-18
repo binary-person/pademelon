@@ -1,7 +1,7 @@
 import Pademelon = require('../../browser-module');
 import { rewriteGetterSetter } from '../rewriteGetterSetter';
 
-function rewriteResponse(pademelonInstance: Pademelon) {
+function rewriteResponse(pademelonInstance: Pademelon): void {
     if (!window.Response) {
         // jsdom does not have window.Response so polyfilling it here to prevent
         // it from throwing errors on other browser-rewrite tests

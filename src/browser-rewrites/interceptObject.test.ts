@@ -273,6 +273,7 @@ describe('interceptObject', () => {
                 );
             });
         });
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
         describe('bind function', () => {
             globalObj.func = function () {
                 return this;
@@ -461,5 +462,6 @@ describe('interceptObject', () => {
                 expect(Object.keys(globalObj)).toEqual(Object.keys(interceptedObj));
             });
         });
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     });
 });

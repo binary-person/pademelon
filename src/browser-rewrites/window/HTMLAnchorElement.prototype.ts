@@ -12,9 +12,7 @@ function rewriteAnchorUrlAttr(pademelonInstance: Pademelon, urlProp: urlPropsTyp
                 const url = new URL(this.href); // url already unrewritten by HTMLElementsAttribute.ts
                 url[urlProp] = setValue;
                 this.href = url.href;
-            } catch (e) {
-                // tslint:ignore empty
-            }
+            } catch (e) {}
         };
     }
     rewriteGetterSetter(HTMLAnchorElement.prototype, urlProp, {
@@ -30,7 +28,7 @@ function rewriteAnchorUrlAttr(pademelonInstance: Pademelon, urlProp: urlPropsTyp
     });
 }
 
-function rewriteAnchorElementProto(pademelonInstance: Pademelon) {
+function rewriteAnchorElementProto(pademelonInstance: Pademelon): void {
     const urlProps: urlPropsType[] = ['host', 'hostname', 'origin', 'pathname', 'port'];
     urlProps.forEach((prop) => rewriteAnchorUrlAttr(pademelonInstance, prop));
 }

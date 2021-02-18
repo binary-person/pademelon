@@ -66,7 +66,7 @@ const server = http.createServer((req, res) => {
 
         const proxyRequest = (url.protocol === 'https:' ? https : http).request(options, (proxyRes) => {
             proxyHandler.serverToClientHeaderRewrites(proxyRes, req);
-            proxyHandler.handler(proxyRes, req, res);
+            void proxyHandler.handler(proxyRes, req, res);
         });
         req.pipe(proxyRequest, {
             end: true

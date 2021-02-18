@@ -1,11 +1,9 @@
 import { fakeToString } from './fakeToString';
-import { objRewriteType } from './rewriteFunction';
 
 type rewriteGetterReturnFunc = (returnValue: any) => any;
 type rewriteSetterFunc = (setValue: any) => any;
 type hookAfterGetterFunc = (returnValue: any, modifiedReturnValue: any) => void;
 type hookAfterSetterFunc = (setterValue: any, modifiedSetterValue: any) => void;
-
 /**
  *
  * @param obj - property's object to rewrite
@@ -22,9 +20,9 @@ type hookAfterSetterFunc = (setterValue: any, modifiedSetterValue: any) => void;
  * @param preventCallToGetter
  * @param preventCallToSetter
  */
-function rewriteGetterSetter(
-    obj: objRewriteType,
-    prop: string,
+function rewriteGetterSetter<T extends object, K extends keyof T>(
+    obj: T,
+    prop: K,
     {
         rewriteGetter,
         rewriteSetter,
@@ -40,7 +38,7 @@ function rewriteGetterSetter(
         preventCallToGetter?: boolean;
         preventCallToSetter?: boolean;
     }
-) {
+): void {
     if (
         !rewriteGetter &&
         !rewriteSetter &&
@@ -74,7 +72,7 @@ function rewriteGetterSetter(
             if (hookAfterGetter) hookAfterGetter.call(this, originalReturnValue, modifiedReturnValue);
             return modifiedReturnValue;
         };
-        fakeToString(propDescriptor.get, prop);
+        fakeToString(propDescriptor.get, prop.toString());
     }
     if (propDescriptor.set && (rewriteSetter || hookAfterSetter)) {
         const originalSetter = propDescriptor.set;
@@ -83,7 +81,7 @@ function rewriteGetterSetter(
             if (!preventCallToSetter) originalSetter.call(this, modifiedValue);
             if (hookAfterSetter) hookAfterSetter.call(this, value, modifiedValue);
         };
-        fakeToString(propDescriptor.set, prop);
+        fakeToString(propDescriptor.set, prop.toString());
     }
     Object.defineProperty(obj, prop, propDescriptor);
 }

@@ -30,7 +30,7 @@ const escapeDoubleQuote = /"/g;
 const escapeParentheses = /\)/g;
 const escapeBackslash = /\\/g;
 
-function unescapeString(str: string) {
+function unescapeString(str: string): string {
     return str.replace(unescapeRegex, '$1');
 }
 function escapeString(str: string, delimiter: escapeCharacters): string {

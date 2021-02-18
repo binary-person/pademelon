@@ -2,12 +2,12 @@ import Pademelon = require('../../browser-module');
 import { typeToMod } from '../../mod';
 import { rewriteFunction } from '../rewriteFunction';
 
-function rewriteNavigatorSendBeacon(pademelonInstance: Pademelon) {
-    if (!window.navigator.sendBeacon) window.navigator.sendBeacon = (() => undefined) as any;
+function rewriteNavigatorSendBeacon(pademelonInstance: Pademelon): void {
+    if (!window.navigator.sendBeacon) window.navigator.sendBeacon = () => false;
 
-    rewriteFunction(window.navigator, 'sendBeacon', {
-        interceptArgs(_, url: string, data: any) {
-            return [pademelonInstance.rewriteUrl(url, typeToMod('api')), data];
+    window.navigator.sendBeacon = rewriteFunction(window.navigator.sendBeacon, {
+        interceptArgs(_, url: string, data?: any | null | undefined) {
+            return [pademelonInstance.rewriteUrl(url, typeToMod('api')), data] as const;
         }
     });
 }

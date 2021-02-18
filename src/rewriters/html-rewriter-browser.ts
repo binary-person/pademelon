@@ -1,7 +1,3 @@
-import { htmlUrlRewriter, recursiveRewriteHtml, strStrFunc } from './html-rewriter';
-
-// const htmlBrowserRewriter =
-//     (element: HTMLElement, urlRewriteFunc: htmlUrlRewriter, cssRewriterFunc: strStrFunc, jsRewriterFunc: strStrFunc, recursive = true) =>
-//         recursiveRewriteHtml(element, urlRewriteFunc, cssRewriterFunc, jsRewriterFunc, recursive);
+import { recursiveRewriteHtml } from './html-rewriter';
 
 export { recursiveRewriteHtml as htmlBrowserRewriter };

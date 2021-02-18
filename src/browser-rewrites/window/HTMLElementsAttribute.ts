@@ -34,9 +34,29 @@ for (let eachElementClass of list) {
 console.log(JSON.stringify(htmlElementClassRewrites, null, 4))
 */
 
+type elementClasses =
+    | 'HTMLAnchorElement'
+    | 'HTMLAreaElement'
+    | 'HTMLBaseElement'
+    | 'HTMLBodyElement'
+    | 'HTMLEmbedElement'
+    | 'HTMLFormElement'
+    | 'HTMLFrameElement'
+    | 'HTMLIFrameElement'
+    | 'HTMLImageElement'
+    | 'HTMLInputElement'
+    | 'HTMLLinkElement'
+    | 'HTMLMediaElement'
+    | 'HTMLMetaElement'
+    | 'HTMLModElement'
+    | 'HTMLObjectElement'
+    | 'HTMLQuoteElement'
+    | 'HTMLScriptElement'
+    | 'HTMLSourceElement'
+    | 'HTMLTrackElement';
 type htmlElementClassRewritesArrayType = [attribute: string, modType?: modTypes];
 type htmlElementClassRewritesShape = {
-    [elementClass: string]: htmlElementClassRewritesArrayType[];
+    [elementClass in elementClasses]: htmlElementClassRewritesArrayType[];
 };
 
 // reason for using arrays is because when running prettier, it saves lots of space
@@ -66,10 +86,10 @@ const htmlElementClassRewrites: htmlElementClassRewritesShape = {
     HTMLTrackElement: [['src']]
 };
 
-function rewriteElementProtoAttr(
+function rewriteElementProtoAttr<T extends new (...args: any[]) => any, K extends string & keyof T>(
     pademelonInstance: Pademelon,
-    targetElementClass: any,
-    attr: string,
+    targetElementClass: T,
+    attr: K,
     mod?: string
 ): void {
     if (targetElementClass && targetElementClass.prototype) {
@@ -89,18 +109,17 @@ function rewriteElementProtoAttr(
     }
 }
 
-function rewriteHTMLElementsAttribute(pademelonInstance: Pademelon) {
-    // tslint:disable-next-line:forin
+function rewriteHTMLElementsAttribute(pademelonInstance: Pademelon): void {
     for (const elementClass in htmlElementClassRewrites) {
-        for (const eachAttribute of htmlElementClassRewrites[elementClass]) {
+        for (const eachAttribute of htmlElementClassRewrites[elementClass as elementClasses]) {
             rewriteElementProtoAttr(
                 pademelonInstance,
-                window[elementClass as any],
-                eachAttribute[0],
+                window[elementClass as elementClasses],
+                eachAttribute[0] as any,
                 typeToMod(eachAttribute[1] as modTypes)
             );
         }
     }
 }
 
-export { rewriteHTMLElementsAttribute, htmlElementClassRewrites };
+export { rewriteHTMLElementsAttribute, htmlElementClassRewrites, elementClasses };

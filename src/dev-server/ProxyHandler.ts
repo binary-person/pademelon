@@ -5,7 +5,7 @@ import decompressResponse = require('decompress-response');
 import streamToString = require('stream-to-string');
 import TypedEmitter from 'typed-emitter';
 
-import { modToType, modTypes, typeToMod } from '../mod';
+import { modToType, modTypes } from '../mod';
 import { Pademelon } from '../nodejs-module';
 
 type passThroughModsType = 'raw' | 'api' | 'serviceworker' | 'webworker';
@@ -42,7 +42,7 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
     /**
      * @name handler
      */
-    public async handler(proxyRes: IncomingMessage, req: IncomingMessage, res: ServerResponse) {
+    public async handler(proxyRes: IncomingMessage, req: IncomingMessage, res: ServerResponse): Promise<void> {
         const unrewrittenUrl = this.pademelon.unrewriteUrl(req.url || '');
         if (unrewrittenUrl.fail) {
             throw new Error('This should never throw. How did it get pass the first check?? Request URL: ' + req.url);
@@ -77,7 +77,7 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
     /**
      * @name clientToServerHeaderRewrites
      */
-    public clientToServerHeaderRewrites(req: IncomingMessage) {
+    public clientToServerHeaderRewrites(req: IncomingMessage): void {
         try {
             const unrewrittenUrl = this.pademelon.unrewriteUrl(req.url || '');
             if (unrewrittenUrl.fail) {
@@ -102,7 +102,7 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
     /**
      * @name serverToClientHeaderRewrites
      */
-    public serverToClientHeaderRewrites(proxyRes: IncomingMessage, req: IncomingMessage) {
+    public serverToClientHeaderRewrites(proxyRes: IncomingMessage, req: IncomingMessage): void {
         delete proxyRes.headers['content-security-policy'];
         delete proxyRes.headers.link;
         if (proxyRes.headers.location)
