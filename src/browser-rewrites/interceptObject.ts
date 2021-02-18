@@ -59,7 +59,7 @@ function isEmptyObj(obj: any): boolean {
     return Object.keys(Object.getOwnPropertyDescriptors(obj)).length === 0;
 }
 
-function interceptObject<A extends any[], R, T extends object | (((...args: A) => R) & { new (...args: A): R })>(
+function interceptObject<A extends any[], R, T extends (((...args: A) => R) & { new (...args: A): R }) | object>(
     targetObject: T,
     {
         modifiedProperties = {},
@@ -68,6 +68,7 @@ function interceptObject<A extends any[], R, T extends object | (((...args: A) =
         getHook = () => undefined,
         rewriteArgs,
         rewriteReturn,
+        rewriteThis,
         useOriginalTarget = isEmptyObj(modifiedProperties)
     }: {
         modifiedProperties?: modifiedPropertiesType;
@@ -76,6 +77,7 @@ function interceptObject<A extends any[], R, T extends object | (((...args: A) =
         getHook?: (prop: string | number | symbol) => void;
         rewriteArgs?: (args: A, isConstructor: boolean) => A;
         rewriteReturn?: (returnValue: R, args: A, isConstructor: boolean) => R;
+        rewriteThis?: (thisArg: any) => any;
         useOriginalTarget?: boolean;
     } = {}
 ): mergeObj<typeof modifiedProperties, T> {
@@ -106,10 +108,10 @@ function interceptObject<A extends any[], R, T extends object | (((...args: A) =
         construct: (_target, argArray, newTarget) => {
             const returnValue = Reflect.construct(
                 targetObject as () => void,
-                rewriteArgs ? rewriteArgs(argArray, true) : argArray,
+                rewriteArgs ? rewriteArgs.call(undefined, argArray, true) : argArray,
                 newTarget
             );
-            if (rewriteReturn) return rewriteReturn(returnValue, argArray, true);
+            if (rewriteReturn) return rewriteReturn.call(undefined, returnValue, argArray, true);
             return returnValue;
         },
         apply: (_target, thisArg, argArray) => {
@@ -117,6 +119,7 @@ function interceptObject<A extends any[], R, T extends object | (((...args: A) =
                 parentObject && (!(thisArg || parentProxyObject) || thisArg === parentProxyObject)
                     ? parentObject
                     : thisArg;
+            thisArg = rewriteThis ? rewriteThis(thisArg) : thisArg;
             const returnValue = Reflect.apply(
                 targetObject as () => void,
                 thisArg,

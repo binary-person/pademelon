@@ -1,9 +1,9 @@
 import Pademelon = require('../../browser-module');
 import { rewriteDocumentProto, patchCreateTreeWalker } from './Document';
 import { rewriteElementProto } from './Element.prototype';
+import { patchEventTargetProto } from './EventTarget.prototype';
 import { rewritefetch } from './fetch';
 import { rewriteWindowFunction } from './Function';
-import { patchFunctionProto } from './Function.prototype';
 import { rewriteHistory } from './history';
 import { rewriteAnchorElementProto } from './HTMLAnchorElement.prototype';
 import { rewriteHTMLElementsAttribute } from './HTMLElementsAttribute';
@@ -46,7 +46,7 @@ const windowRewriters: rewriterFuncParams[] = [
     // patches
     patchCreateTreeWalker,
     patchMutationObserver,
-    patchFunctionProto
+    patchEventTargetProto
 ];
 
 export { windowRewriters, rewriterFuncParams };
