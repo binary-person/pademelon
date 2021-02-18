@@ -15,23 +15,39 @@ type bindCacheType = {
 // a workaround for prettier and weird ide coloration
 type mergeObj<A, B> = A & B;
 
-// Proxy isn't really a primitive but it should not be proxied
-const primitives = [Boolean, Number, String, BigInt, Symbol, Object, Proxy];
+const primitives = [Boolean, Number, String, BigInt, Symbol, Object] as const;
+// Proxy: do not bind because it doesn't need to and the simple constructor check by checking
+// the existence of a prototype property fails only with Proxy
+const otherDoNotBindFuncs = [Proxy] as const;
 
 // store a reference to toString because rewriteWindowFunction will overwrite Function, resulting
 // in an infinite loop of referencing its own prototype property
 const funcToString = Function.prototype.toString;
 
 function doNotBindFunction(func: () => void): boolean {
+    // needed in order to pass test262 unit tests
     if (func === Error || func instanceof Error || func.prototype instanceof Error) return true;
+
     // primitives don't care if they aren't binded to the window object, and also,
     // avoid binding them to pass test262 unit tests
     if (primitives.includes(func as any)) return true;
+
+    if (otherDoNotBindFuncs.includes(func as any)) return true;
+
+    // avoid binding because we need it to bind to the proxy object, not the real object,
+    // as when the obj.func.call(obj) gets run, func's proxy apply trap can properly handle it
+    // (which won't if we don't bind)
+    // also, avoid caching a reference to otherDoNotBindFuncs because Function.prototype.call will
+    // get modified and we want to grab the latest copy
+    if (Function.prototype.call === func || Function.prototype.bind === func || Function.prototype.apply === func)
+        return true;
+
     // the only reason we want to bind functions is some native functions on the window object
     // don't like it when they are called with the 'this' not binded to a window.
     // if we were to extend the binding to other functions created by the page's js,
     // we will create all sorts of problems
     if (!/\{\s+\[native code\]/.test(funcToString.call(func))) return true;
+
     return false;
 }
 

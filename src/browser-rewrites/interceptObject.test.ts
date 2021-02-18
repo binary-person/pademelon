@@ -306,6 +306,12 @@ describe('interceptObject', () => {
                 expect(globalObj.funcIntercept()).toBe(globalObj);
                 expect(interceptedObj.funcIntercept()).toBe(globalObj);
             });
+            it('should bind property function with prop.call if native and binded this is interceptedObj', () => {
+                expect(interceptedObj.func.call(interceptedObj)).toBe(globalObj);
+            });
+            it('should bind property function on interceptedObject with prop.call if native and binded this is interceptedObj', () => {
+                expect(interceptedObj.funcIntercept.call(interceptedObj)).toBe(globalObj);
+            });
             it('two binded functions should be equal', () => {
                 expect(globalObj.func).toBe(globalObj.func);
                 expect(interceptedObj.func).toBe(interceptedObj.func);
