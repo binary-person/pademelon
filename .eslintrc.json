@@ -16,7 +16,7 @@
         "project": "tsconfig.json",
         "sourceType": "module"
     },
-    "plugins": ["eslint-plugin-prefer-arrow", "@typescript-eslint"],
+    "plugins": ["eslint-plugin-prefer-arrow", "@typescript-eslint", "eslint-plugin-tsdoc"],
     "rules": {
         "@typescript-eslint/restrict-plus-operands": "off",
         "@typescript-eslint/no-unsafe-return": "off",
@@ -24,12 +24,14 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unused-vars": ["warn", { "args": "after-used", "argsIgnorePattern": "^_" }],
-        "@typescript-eslint/ban-types": ["error",
+        "@typescript-eslint/ban-types": [
+            "error",
             {
                 "types": {
                     "object": false
                 }
             }
-        ]
+        ],
+        "tsdoc/syntax": "warn"
     }
 }
