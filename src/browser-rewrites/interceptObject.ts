@@ -12,8 +12,11 @@ type bindCacheType = {
         bindedFunc: () => void;
     };
 };
+// a workaround for prettier and weird ide coloration
+type mergeObj<A, B> = A & B;
 
-const primitives = [Boolean, Number, String, BigInt, Symbol, Object];
+// Proxy isn't really a primitive but it should not be proxied
+const primitives = [Boolean, Number, String, BigInt, Symbol, Object, Proxy];
 
 // store a reference to toString because rewriteWindowFunction will overwrite Function, resulting
 // in an infinite loop of referencing its own prototype property
@@ -59,17 +62,18 @@ function interceptObject<A extends any[], R, T extends object | (((...args: A) =
         rewriteReturn?: (returnValue: R, args: A, isConstructor: boolean) => R;
         useOriginalTarget?: boolean;
     } = {}
-): typeof modifiedProperties & T {
+): mergeObj<typeof modifiedProperties, T> {
     if (useOriginalTarget && !isEmptyObj(modifiedProperties)) {
         throw new TypeError('Cannot use original target and have a non-empty modifiedProperties');
     }
 
     const bindCache: bindCacheType = Object.create(null);
 
+    /* eslint-disable @typescript-eslint/no-empty-function */
     const carbonCopy =
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         typeof targetObject === 'function' ? (hasProperty(targetObject, 'prototype') ? function () {} : () => {}) : {};
     Object.setPrototypeOf(carbonCopy, targetObject);
+    /* eslint-enable @typescript-eslint/no-empty-function */
 
     const proxyObject: any = new Proxy(useOriginalTarget ? targetObject : carbonCopy, {
         getPrototypeOf: () => Reflect.getPrototypeOf(targetObject),
