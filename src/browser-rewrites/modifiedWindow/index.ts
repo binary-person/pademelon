@@ -5,6 +5,7 @@
 import Pademelon = require('../../browser-module');
 import { interceptObject } from '../interceptObject';
 import { modifiedDocument } from './document';
+import { modifiedGlobalThis } from './globalThis';
 import { modifiedLocation } from './location';
 import { modifiedParent } from './parent';
 import { modifiedSelf } from './self';
@@ -19,7 +20,8 @@ const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
     modifiedDocument,
     modifiedTop,
     modifiedSelf,
-    modifiedParent
+    modifiedParent,
+    modifiedGlobalThis
 ];
 
 function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Window = window): Window {
