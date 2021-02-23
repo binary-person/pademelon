@@ -34,12 +34,12 @@ function jsRewriter(jsCode: string, windowProp: string): string {
     const newline = /\n|\r/.test(jsCode) ? '\n' : '';
     return (
         signatureJSRewrite +
-        ` window.pademelonInstance.varLookupChain.push((function(){ with(window.${windowProp}.modifiedWindow) {${newline}${jsCode}${newline}} ` +
-        'var alreadyLookedupVars = Object.create(null); return function globalizeFunction(funcName) { ' +
+        ' (function(){ var alreadyLookedupVars = Object.create(null); window.pademelonInstance.varLookupChain.push(function globalizeFunction(funcName) { ' +
         'if (alreadyLookedupVars[funcName] !== undefined) return alreadyLookedupVars[funcName]; ' +
         'try { eval("window." + funcName + " = " + funcName); alreadyLookedupVars[funcName] = true } catch(e) {alreadyLookedupVars[funcName] = false} ' +
-        'return alreadyLookedupVars[funcName]}; ' +
-        `}).bind(this === window ? window.${windowProp}.modifiedWindow : this)())`
+        'return alreadyLookedupVars[funcName]}); ' +
+        `with(window.${windowProp}.modifiedWindow) {${newline}${jsCode}${newline}}` +
+        `}).bind(this === window ? window.${windowProp}.modifiedWindow : this)()`
     );
 }
 

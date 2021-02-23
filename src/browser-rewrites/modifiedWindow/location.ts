@@ -2,7 +2,7 @@ import Pademelon = require('../../browser-module');
 import { fakeToString } from '../fakeToString';
 import { interceptObject } from '../interceptObject';
 
-function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window): void {
+function modifiedLocation(pademelonInstance: Pademelon, modifiedProperties: object, targetWindow: Window): void {
     const getterSetterUrlProps = [
         'hash',
         'host',
@@ -61,7 +61,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedWindow: object, 
     const locationObj = interceptObject(targetWindow.location, { modifiedProperties: modifiedLocationProps });
 
     // handle page code running targetWindow.location's setter like this: targetWindow.location = "newlocation"
-    Object.defineProperty(modifiedWindow, 'location', {
+    Object.defineProperty(modifiedProperties, 'location', {
         enumerable: true,
         get() {
             return locationObj;

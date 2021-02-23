@@ -12,7 +12,12 @@ import { modifiedSelf } from './self';
 import { modifiedTop } from './top';
 import { modifiedRecursiveWindow } from './window';
 
-type modifiedWindowFuncParams = (pademelonInstance: Pademelon, modifiedWindow: object, targetWindow: Window) => void;
+type modifiedWindowFuncParams = (
+    pademelonInstance: Pademelon,
+    modifiedProperties: object,
+    targetWindow: Window,
+    modifiedWindow: Window
+) => void;
 
 const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
     modifiedLocation,
@@ -25,20 +30,20 @@ const modifiedWindowRewriters: modifiedWindowFuncParams[] = [
 ];
 
 function generateModifiedWindow(pademelonInstance: Pademelon, targetWindow: Window = window): Window {
-    // force "any" type on all objects to get webpack to stop screaming about
-    // "Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{}'."
-    const modifiedWindow = {};
-    for (const modifiedWindowRewriter of modifiedWindowRewriters) {
-        modifiedWindowRewriter(pademelonInstance, modifiedWindow, targetWindow);
-    }
-    return interceptObject(targetWindow, {
-        modifiedProperties: modifiedWindow,
+    const modifiedProperties = {};
+    const modifiedWindow = interceptObject(targetWindow, {
+        modifiedProperties,
+        useOriginalTarget: false,
         getHook(prop) {
             if (!(prop in targetWindow) && typeof prop === 'string') {
                 pademelonInstance.runFuncLookupChain(prop);
             }
         }
     });
+    for (const modifiedWindowRewriter of modifiedWindowRewriters) {
+        modifiedWindowRewriter(pademelonInstance, modifiedProperties, targetWindow, modifiedWindow);
+    }
+    return modifiedWindow;
 }
 
 export { generateModifiedWindow };

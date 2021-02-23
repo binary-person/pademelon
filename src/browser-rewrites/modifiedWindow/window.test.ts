@@ -15,6 +15,7 @@ describe('modifiedRecursiveWindow', () => {
     const modifiedWindow = generateModifiedWindow(pademelonInstance);
 
     it('should have window recursion', () => {
-        expect(modifiedWindow.window).toEqual(modifiedWindow.window.window);
+        expect(modifiedWindow.window).toBe(modifiedWindow);
+        expect(modifiedWindow.window).toBe(modifiedWindow.window.window);
     });
 });

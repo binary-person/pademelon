@@ -1,12 +1,15 @@
 import Pademelon = require('../../browser-module');
 
-function modifiedGlobalThis(pademelonInstance: Pademelon, modifiedWindow: object): void {
+function modifiedGlobalThis(
+    _pademelonInstance: Pademelon,
+    modifiedProperties: object,
+    _targetWindow: Window,
+    modifiedWindow: Window
+): void {
     if (window.globalThis)
-        Object.defineProperty(modifiedWindow, 'globalThis', {
+        Object.defineProperty(modifiedProperties, 'globalThis', {
             enumerable: true,
-            get() {
-                return pademelonInstance.modifiedWindow;
-            }
+            value: modifiedWindow
         });
 }
 
