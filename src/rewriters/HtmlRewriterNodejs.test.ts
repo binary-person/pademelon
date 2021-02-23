@@ -21,9 +21,19 @@ describe('HTML NodeJS Rewriter', () => {
             return 'cssRewritten{}' + cssText;
         }
     });
-    it('should rewrite js inside <script src="code.js"> and src correctly', () => {
+    it('should rewrite js inside <script> and src correctly', () => {
         expect(htmlRewriter.rewriteHtmlString('<script>somecode.execute()</script>')).toEqual(
             '<script>var jsRewritten;somecode.execute()</script>'
+        );
+    });
+    it('should rewrite js if <script type="text/javascript">', () => {
+        expect(htmlRewriter.rewriteHtmlString('<script type="text/javascript">somecode.execute()</script>')).toEqual(
+            '<script type="text/javascript">var jsRewritten;somecode.execute()</script>'
+        );
+    });
+    it('should not rewrite js if <script type="someothertype">', () => {
+        expect(htmlRewriter.rewriteHtmlString('<script type="someothertype">somecode.execute()</script>')).toEqual(
+            '<script type="someothertype">somecode.execute()</script>'
         );
     });
     it('should rewrite src in <script src="code.js"> and not rewrite empty js correctly', () => {

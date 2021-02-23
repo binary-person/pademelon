@@ -201,7 +201,8 @@ class HtmlRewriter {
         switch (element.tagName) {
             case 'SCRIPT':
                 element.removeAttribute('integrity');
-                if (element.textContent && !element.getAttribute('type')?.endsWith('json'))
+                const scriptType = element.getAttribute('type');
+                if (element.textContent && (!scriptType || scriptType.endsWith('javascript')))
                     element.textContent = this.rewriteJS(element.textContent);
                 rewriteAttribute(element, 'src', (attributeValue) => this.rewriteUrl(attributeValue, 'script'));
                 break;
