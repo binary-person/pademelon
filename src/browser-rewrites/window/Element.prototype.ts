@@ -1,6 +1,6 @@
 import Pademelon = require('../../browser-module');
 import { modTypes, typeToMod } from '../../mod';
-import { rewriteAttrSpecial } from '../../rewriters/html-rewriter';
+import { HtmlRewriter } from '../../rewriters/HtmlRewriter';
 import { rewriteFunction } from '../rewriteFunction';
 import { htmlElementClassRewrites, elementClasses } from './HTMLElementsAttribute';
 
@@ -10,10 +10,12 @@ function rewriteAttrValue(
     attrValue: string,
     rewriter: (url: string, mod?: string) => string
 ): string {
+    const htmlRewriter = new HtmlRewriter();
     if (element.constructor.name in htmlElementClassRewrites) {
         for (const eachRewriteAttr of htmlElementClassRewrites[element.constructor.name as elementClasses]) {
             if (eachRewriteAttr[0] === attr) {
-                return rewriteAttrSpecial(attr, attrValue, (url) => rewriter(url, eachRewriteAttr[1]));
+                htmlRewriter.rewriteUrl = (url) => rewriter(url, eachRewriteAttr[1]);
+                return htmlRewriter.attributeRewriter(attr, attrValue);
             }
         }
     }

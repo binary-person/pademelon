@@ -28,17 +28,18 @@ function jsRewriter(jsCode: string, windowProp: string): string {
     if (invalidWindowPropRegex.test(windowProp)) {
         throw new TypeError('Invalid windowProp ' + windowProp + '. Matches invalid regex ' + invalidWindowPropRegex);
     }
-    if (jsCode.startsWith(signatureJSRewrite)) {
+    if (!jsCode || jsCode.startsWith(signatureJSRewrite)) {
         return jsCode;
     }
+    const newline = /\n|\r/.test(jsCode) ? '\n' : '';
     return (
         signatureJSRewrite +
-        ` window.pademelonInstance.varLookupChain.push((function(){ with(window.${windowProp}.modifiedWindow) {\n${jsCode}\n} ` +
+        ` window.pademelonInstance.varLookupChain.push((function(){ with(window.${windowProp}.modifiedWindow) {${newline}${jsCode}${newline}} ` +
         'var alreadyLookedupVars = Object.create(null); return function globalizeFunction(funcName) { ' +
         'if (alreadyLookedupVars[funcName] !== undefined) return alreadyLookedupVars[funcName]; ' +
         'try { eval("window." + funcName + " = " + funcName); alreadyLookedupVars[funcName] = true } catch(e) {alreadyLookedupVars[funcName] = false} ' +
         'return alreadyLookedupVars[funcName]}; ' +
-        `}).bind(window.${windowProp}.modifiedWindow)())`
+        `}).bind(this === window ? window.${windowProp}.modifiedWindow : this)())`
     );
 }
 

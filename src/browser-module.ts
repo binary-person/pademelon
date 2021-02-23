@@ -1,8 +1,6 @@
 import { BasePademelon } from './base-rewriter-module';
 import { generateModifiedWindow } from './browser-rewrites/modifiedWindow';
 import { rewriterFuncParams, windowRewriters } from './browser-rewrites/window';
-import { typeToMod } from './mod';
-import { htmlBrowserRewriter } from './rewriters/html-rewriter-browser';
 import { unrewriteUrlType } from './rewriters/UrlRewriter';
 
 type globalizeVariableType = (funcName: string) => boolean;
@@ -48,25 +46,6 @@ class Pademelon extends BasePademelon {
                 return;
             }
         }
-    }
-
-    public rewriteHTML(element: HTMLElement, recursive = true, proxyPath: string = window.location.pathname): void {
-        htmlBrowserRewriter(
-            element,
-            (inputUrl, htmlUrlType) => {
-                switch (htmlUrlType) {
-                    case 'script':
-                        return this.rewriteUrl(inputUrl, typeToMod('javascript'), proxyPath);
-                    case 'stylesheet':
-                        return this.rewriteUrl(inputUrl, typeToMod('stylesheet'), proxyPath);
-                    default:
-                        return this.rewriteUrl(inputUrl);
-                }
-            },
-            (cssText) => this.rewriteCSS(cssText, proxyPath),
-            this.rewriteJS,
-            recursive
-        );
     }
     public rewriteUrl = (url: string, mod?: string, proxyPath: string = window.location.pathname): string => {
         if (url === this.getBrowserPademelonDistUrl()) return url;

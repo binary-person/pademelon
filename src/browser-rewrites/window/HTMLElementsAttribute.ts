@@ -5,7 +5,7 @@
 
 import Pademelon = require('../../browser-module');
 import { modTypes, typeToMod } from '../../mod';
-import { rewriteAttrSpecial } from '../../rewriters/html-rewriter';
+import { HtmlRewriter } from '../../rewriters/HtmlRewriter';
 import { rewriteGetterSetter } from '../rewriteGetterSetter';
 
 /*
@@ -92,16 +92,21 @@ function rewriteElementProtoAttr<T extends new (...args: any[]) => any, K extend
     attr: K,
     mod?: string
 ): void {
+    const htmlRewriter = new HtmlRewriter();
+
     if (targetElementClass && targetElementClass.prototype) {
         rewriteGetterSetter(targetElementClass.prototype, attr, {
             rewriteGetter(returnValue: string): string {
-                if (returnValue)
-                    return rewriteAttrSpecial(attr, returnValue, (url) => pademelonInstance.unrewriteUrl(url).url);
+                if (returnValue) {
+                    htmlRewriter.rewriteUrl = (url) => pademelonInstance.unrewriteUrl(url).url;
+                    return htmlRewriter.attributeRewriter(attr, returnValue);
+                }
                 return returnValue;
             },
             rewriteSetter(setValue: string): string {
                 if (setValue) {
-                    return rewriteAttrSpecial(attr, setValue, (url) => pademelonInstance.rewriteUrl(url, mod));
+                    htmlRewriter.rewriteUrl = (url) => pademelonInstance.rewriteUrl(url, mod);
+                    return htmlRewriter.attributeRewriter(attr, setValue);
                 }
                 return setValue;
             }
