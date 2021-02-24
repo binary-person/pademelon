@@ -2,6 +2,7 @@ import Pademelon = require('../../browser-module');
 import { modTypes, typeToMod } from '../../mod';
 import { HtmlRewriter } from '../../rewriters/HtmlRewriter';
 import { rewriteFunction } from '../rewriteFunction';
+import { rewriteGetterSetter } from '../rewriteGetterSetter';
 import { htmlElementClassRewrites, elementClasses } from './HTMLElementsAttribute';
 
 function rewriteAttrValue(
@@ -23,11 +24,12 @@ function rewriteAttrValue(
 }
 
 function rewriteElementProto(pademelonInstance: Pademelon): void {
+    // get/setAttribute
     Element.prototype.setAttribute = rewriteFunction(Element.prototype.setAttribute, {
         interceptArgs(this: Element, _, attr: string, attrValue: string) {
             if (typeof attrValue === 'string') {
                 attrValue = rewriteAttrValue(this, attr, attrValue, (url, mod) =>
-                    pademelonInstance.rewriteUrl(url, typeToMod(mod as modTypes))
+                    pademelonInstance.rewriteUrl(url, undefined, typeToMod(mod as modTypes))
                 );
             }
             return [attr, attrValue] as const;
@@ -39,6 +41,16 @@ function rewriteElementProto(pademelonInstance: Pademelon): void {
                 return rewriteAttrValue(this, attr, originalValue, (url) => pademelonInstance.unrewriteUrl(url).url);
             }
             return originalValue;
+        }
+    });
+
+    // innerHTML
+    rewriteGetterSetter(Element.prototype, 'innerHTML', {
+        rewriteSetter(this: Element, setValue: string): string {
+            if (setValue && this instanceof HTMLElement) {
+                setValue = pademelonInstance.rewriteHTML(setValue);
+            }
+            return setValue;
         }
     });
 }

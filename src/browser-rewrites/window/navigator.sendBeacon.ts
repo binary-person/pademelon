@@ -7,7 +7,7 @@ function rewriteNavigatorSendBeacon(pademelonInstance: Pademelon): void {
 
     window.navigator.sendBeacon = rewriteFunction(window.navigator.sendBeacon, {
         interceptArgs(_, url: string, data?: any | null | undefined) {
-            return [pademelonInstance.rewriteUrl(url, typeToMod('api')), data] as const;
+            return [pademelonInstance.rewriteUrl(url, undefined, typeToMod('api')), data] as const;
         }
     });
 }

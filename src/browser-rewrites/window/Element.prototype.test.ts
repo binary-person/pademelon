@@ -37,4 +37,11 @@ describe('rewrite Element.prototype', () => {
         );
         expect(scriptElement.setAttribute).toHaveBeenNthCalledWith(2, 'someotherattribute', '/asset.js');
     });
+    it('should rewrite innerHTML', () => {
+        const div = document.createElement('div');
+        div.innerHTML = '<style>body {background-image: url(/img.png)}</style>';
+        expect(div.innerHTML).toEqual(
+            '<style>body {background-image: url(/prefix/rw_/https://proxiedsite.com/img.png)}</style>'
+        );
+    });
 });

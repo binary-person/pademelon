@@ -16,7 +16,10 @@ function rewriteRequest(pademelonInstance: Pademelon): void {
                 url = input;
             }
             return [
-                new _Request(pademelonInstance.rewriteUrl(url, typeToMod('api')), new _Request(input, initOpts))
+                new _Request(
+                    pademelonInstance.rewriteUrl(url, undefined, typeToMod('api')),
+                    new _Request(input, initOpts)
+                )
             ] as const;
         }
     });

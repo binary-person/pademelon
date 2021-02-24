@@ -35,7 +35,7 @@ class Pademelon extends BasePademelon {
                         mod = 'api';
                         break;
                 }
-                return this.rewriteUrl(inputUrl, typeToMod(mod));
+                return this.rewriteUrl(inputUrl, undefined, typeToMod(mod));
             },
             rewriteCSS: this.rewriteCSS.bind(this),
             rewriteJS: this.rewriteJS.bind(this)
@@ -73,7 +73,7 @@ class Pademelon extends BasePademelon {
             }
         }
     }
-    public rewriteUrl(url: string, mod?: string, proxyPath: string = window.location.pathname): string {
+    public rewriteUrl(url: string, proxyPath: string = window.location.pathname, mod?: string): string {
         if (url === this.getBrowserPademelonDistUrl()) return url;
         return super.rewriteUrl(url, proxyPath, mod);
     }

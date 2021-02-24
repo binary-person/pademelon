@@ -105,7 +105,7 @@ function rewriteElementProtoAttr<T extends new (...args: any[]) => any, K extend
             },
             rewriteSetter(setValue: string): string {
                 if (setValue) {
-                    htmlRewriter.rewriteUrl = (url) => pademelonInstance.rewriteUrl(url, mod);
+                    htmlRewriter.rewriteUrl = (url) => pademelonInstance.rewriteUrl(url, undefined, mod);
                     return htmlRewriter.attributeRewriter(attr, setValue);
                 }
                 return setValue;
