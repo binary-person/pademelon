@@ -136,6 +136,11 @@ function rewriteAttribute(element: Element, attributeName: string, rewriter: (at
     }
 }
 
+interface HtmlRewriterOptions {
+    rewriteUrl?: htmlUrlRewriter;
+    rewriteCSS?: htmlCSSRewriter;
+    rewriteJS?: htmlJSRewriter;
+}
 class HtmlRewriter {
     public rewriteUrl: htmlUrlRewriter;
     public rewriteCSS: htmlCSSRewriter;
@@ -144,11 +149,7 @@ class HtmlRewriter {
         rewriteUrl = (url) => url,
         rewriteCSS = (css) => css,
         rewriteJS = (js) => js
-    }: {
-        rewriteUrl?: htmlUrlRewriter;
-        rewriteCSS?: htmlCSSRewriter;
-        rewriteJS?: htmlJSRewriter;
-    } = {}) {
+    }: HtmlRewriterOptions = {}) {
         this.rewriteUrl = rewriteUrl;
         this.rewriteCSS = rewriteCSS;
         this.rewriteJS = rewriteJS;
@@ -198,7 +199,7 @@ class HtmlRewriter {
         );
     }
     public rewriteHtml(element: Element, recursive = true): void {
-        switch (element.tagName) {
+        switch (element.tagName?.toUpperCase()) {
             case 'SCRIPT':
                 element.removeAttribute('integrity');
                 const scriptType = element.getAttribute('type');
@@ -249,4 +250,4 @@ class HtmlRewriter {
     }
 }
 
-export { HtmlRewriter, htmlUrlTypes, htmlUrlRewriter, htmlCSSRewriter, htmlJSRewriter };
+export { HtmlRewriter, HtmlRewriterOptions, htmlUrlTypes, htmlUrlRewriter, htmlCSSRewriter, htmlJSRewriter };

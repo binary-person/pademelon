@@ -1,6 +1,8 @@
-import { BasePademelon } from './base-rewriter-module';
+import { BasePademelon, BasePademelonOptions } from './base-rewriter-module';
 import { generateModifiedWindow } from './browser-rewrites/modifiedWindow';
 import { rewriterFuncParams, windowRewriters } from './browser-rewrites/window';
+import { modTypes, typeToMod } from './mod';
+import { HtmlRewriterBrowser } from './rewriters/HtmlRewriterBrowser';
 import { unrewriteUrlType } from './rewriters/UrlRewriter';
 
 type globalizeVariableType = (funcName: string) => boolean;
@@ -11,10 +13,34 @@ type globalizeVariableType = (funcName: string) => boolean;
 class Pademelon extends BasePademelon {
     public readonly modifiedWindow = generateModifiedWindow(this);
     public varLookupChain: globalizeVariableType[] = [];
+    public windowRewriters: rewriterFuncParams[] = windowRewriters;
 
     private pademelonDistJS = '';
+    private htmlRewriter: HtmlRewriterBrowser;
 
-    public windowRewriters: rewriterFuncParams[] = windowRewriters;
+    constructor(options: BasePademelonOptions) {
+        super(options);
+
+        this.htmlRewriter = new HtmlRewriterBrowser({
+            rewriteUrl: (inputUrl, htmlUrlType) => {
+                let mod: modTypes | undefined;
+                switch (htmlUrlType) {
+                    case 'script':
+                        mod = 'javascript';
+                        break;
+                    case 'stylesheet':
+                        mod = 'stylesheet';
+                        break;
+                    case 'fetch':
+                        mod = 'api';
+                        break;
+                }
+                return this.rewriteUrl(inputUrl, typeToMod(mod));
+            },
+            rewriteCSS: this.rewriteCSS.bind(this),
+            rewriteJS: this.rewriteJS.bind(this)
+        });
+    }
 
     public initWindowRewrites(): void {
         for (const eachRewriter of this.windowRewriters) {
@@ -47,16 +73,19 @@ class Pademelon extends BasePademelon {
             }
         }
     }
-    public rewriteUrl = (url: string, mod?: string, proxyPath: string = window.location.pathname): string => {
+    public rewriteUrl(url: string, mod?: string, proxyPath: string = window.location.pathname): string {
         if (url === this.getBrowserPademelonDistUrl()) return url;
         return super.rewriteUrl(url, proxyPath, mod);
-    };
-    public unrewriteUrl = (proxyUrl: string = window.location.pathname): unrewriteUrlType => {
+    }
+    public unrewriteUrl(proxyUrl: string = window.location.pathname): unrewriteUrlType {
         return super.unrewriteUrl(proxyUrl);
-    };
-    public rewriteCSS = (cssText: string, proxyPath: string = window.location.pathname): string => {
+    }
+    public rewriteCSS(cssText: string, proxyPath: string = window.location.pathname): string {
         return super.rewriteCSS(cssText, proxyPath);
-    };
+    }
+    public rewriteHTML(htmlText: string): string {
+        return this.htmlRewriter.rewriteHtmlString(htmlText);
+    }
 }
 
 export = Pademelon;
