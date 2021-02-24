@@ -35,6 +35,16 @@ function rewriteDocumentProto(pademelonInstance: Pademelon): void {
             }
         }
     });
+    Document.prototype.write = rewriteFunction(Document.prototype.write, {
+        interceptArgs(_, ...texts: string[]) {
+            return [pademelonInstance.rewriteHTML(texts.join(''))] as const;
+        }
+    });
+    Document.prototype.writeln = rewriteFunction(Document.prototype.writeln, {
+        interceptArgs(_, ...texts: string[]) {
+            return [pademelonInstance.rewriteHTML(texts.join(''))] as const;
+        }
+    });
 }
 
 function patchCreateTreeWalker(pademelonInstance: Pademelon): void {

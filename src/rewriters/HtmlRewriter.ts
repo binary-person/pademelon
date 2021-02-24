@@ -199,45 +199,51 @@ class HtmlRewriter {
         );
     }
     public rewriteHtml(element: Element, recursive = true): void {
-        switch (element.tagName?.toUpperCase()) {
-            case 'SCRIPT':
-                element.removeAttribute('integrity');
-                const scriptType = element.getAttribute('type');
-                if (element.textContent && (!scriptType || scriptType.endsWith('javascript')))
-                    element.textContent = this.rewriteJS(element.textContent);
-                rewriteAttribute(element, 'src', (attributeValue) => this.rewriteUrl(attributeValue, 'script'));
-                break;
-            case 'STYLE':
-                if (element.textContent) element.textContent = this.rewriteCSS(element.textContent);
-                break;
-            case 'LINK':
-                element.removeAttribute('integrity');
-                rewriteAttribute(element, 'href', (hrefValue) => {
-                    if (element.getAttribute('rel') === 'stylesheet' || element.getAttribute('type')?.endsWith('css')) {
-                        return this.rewriteUrl(hrefValue, 'stylesheet');
+        if ('tagName' in element) {
+            // assume element is indeed an instanceof Element
+            switch (element.tagName?.toUpperCase()) {
+                case 'SCRIPT':
+                    element.removeAttribute('integrity');
+                    const scriptType = element.getAttribute('type');
+                    if (element.textContent && (!scriptType || scriptType.endsWith('javascript')))
+                        element.textContent = this.rewriteJS(element.textContent);
+                    rewriteAttribute(element, 'src', (attributeValue) => this.rewriteUrl(attributeValue, 'script'));
+                    break;
+                case 'STYLE':
+                    if (element.textContent) element.textContent = this.rewriteCSS(element.textContent);
+                    break;
+                case 'LINK':
+                    element.removeAttribute('integrity');
+                    rewriteAttribute(element, 'href', (hrefValue) => {
+                        if (
+                            element.getAttribute('rel') === 'stylesheet' ||
+                            element.getAttribute('type')?.endsWith('css')
+                        ) {
+                            return this.rewriteUrl(hrefValue, 'stylesheet');
+                        }
+                        const typeAs = element.getAttribute('as');
+                        let urlType: htmlUrlTypes = 'url';
+                        switch (typeAs) {
+                            case 'script':
+                                urlType = 'script';
+                                break;
+                            case 'style':
+                                urlType = 'stylesheet';
+                                break;
+                            case 'fetch':
+                                urlType = 'fetch';
+                                break;
+                        }
+                        return this.rewriteUrl(hrefValue, urlType);
+                    });
+                    break;
+                default:
+                    for (const eachAttribute of attributesToRewrite) {
+                        rewriteAttribute(element, eachAttribute, (attributeValue) =>
+                            this.attributeRewriter(eachAttribute, attributeValue)
+                        );
                     }
-                    const typeAs = element.getAttribute('as');
-                    let urlType: htmlUrlTypes = 'url';
-                    switch (typeAs) {
-                        case 'script':
-                            urlType = 'script';
-                            break;
-                        case 'style':
-                            urlType = 'stylesheet';
-                            break;
-                        case 'fetch':
-                            urlType = 'fetch';
-                            break;
-                    }
-                    return this.rewriteUrl(hrefValue, urlType);
-                });
-                break;
-            default:
-                for (const eachAttribute of attributesToRewrite) {
-                    rewriteAttribute(element, eachAttribute, (attributeValue) =>
-                        this.attributeRewriter(eachAttribute, attributeValue)
-                    );
-                }
+            }
         }
         if (recursive) {
             for (const eachChildNode of element.childNodes) {

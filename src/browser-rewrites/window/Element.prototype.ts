@@ -47,7 +47,9 @@ function rewriteElementProto(pademelonInstance: Pademelon): void {
     // innerHTML
     rewriteGetterSetter(Element.prototype, 'innerHTML', {
         rewriteSetter(this: Element, setValue: string): string {
-            if (setValue && this instanceof HTMLElement) {
+            // do not rewriteHTML if it's instanceof HTMLTemplateElement because
+            // HtmlRewriterBrowser.ts depends on it
+            if (setValue && this instanceof HTMLElement && !(this instanceof HTMLTemplateElement)) {
                 setValue = pademelonInstance.rewriteHTML(setValue);
             }
             return setValue;

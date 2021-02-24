@@ -49,7 +49,9 @@ class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerE
         }
 
         const contentTypeMod = this.contentTypeToMod(proxyRes.headers['content-type']);
-        const modType = unrewrittenUrl.mod && contentTypeMod !== 'raw' ? modToType(unrewrittenUrl.mod) : contentTypeMod;
+        let modType: modTypes =
+            unrewrittenUrl.mod && contentTypeMod !== 'raw' ? modToType(unrewrittenUrl.mod) : contentTypeMod;
+        if (!proxyRes.headers['content-type'] && !unrewrittenUrl.mod) modType = 'html';
 
         if (this.passthroughMods.includes(modType as passThroughModsType)) {
             res.writeHead(proxyRes.statusCode || 200, proxyRes.headers);

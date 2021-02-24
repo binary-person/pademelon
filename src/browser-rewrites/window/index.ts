@@ -1,5 +1,5 @@
 import Pademelon = require('../../browser-module');
-import { rewriteDocumentProto, patchCreateTreeWalker } from './Document';
+import { rewriteDocumentProto, patchCreateTreeWalker } from './Document.prototype';
 import { rewriteElementProto } from './Element.prototype';
 import { patchEventTargetProto } from './EventTarget.prototype';
 import { rewritefetch } from './fetch';

@@ -13,4 +13,9 @@ describe('HTML Browser Rewriter', () => {
             '<h3>Some text</h3>\n\n<script>var rewritten;blah</script>'
         );
     });
+    it('should rewrite empty script tags properly', () => {
+        expect(htmlRewriter.rewriteHtmlString('<h3>Some text</h3>\n\n<script></script>')).toEqual(
+            '<h3>Some text</h3>\n\n<script></script>'
+        );
+    });
 });
