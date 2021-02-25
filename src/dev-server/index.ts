@@ -94,7 +94,7 @@ server.on('upgrade', (req: http.IncomingMessage, socket: Duplex, head: Buffer) =
     try {
         proxyHandler.clientToServerHeaderRewrites(req);
         proxy.ws(req, socket, head, {
-            target: new URL(pademelon.unrewriteUrl(req.url || '').url)
+            target: new URL(pademelon.unrewriteUrl(req.url).url)
         });
     } catch (e) {
         console.error('Error occurred in websocket proxy', e);

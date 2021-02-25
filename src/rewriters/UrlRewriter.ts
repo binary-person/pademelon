@@ -83,7 +83,7 @@ class UrlRewriter {
         }
         return false;
     }
-    public unrewriteUrl(proxyUrl: string): unrewriteUrlType {
+    public unrewriteUrl(proxyUrl = ''): unrewriteUrlType {
         if (typeof this.urlRewriterOptions.unrewriteUrlIntercept === 'function') {
             proxyUrl = this.urlRewriterOptions.unrewriteUrlIntercept(proxyUrl);
         }
@@ -106,7 +106,7 @@ class UrlRewriter {
         }
         return { url: destUrl, mod };
     }
-    public rewriteUrl(url: string, proxyPath: string, mod?: string): string {
+    public rewriteUrl(url: string, proxyPath = '', mod?: string): string {
         url = url.toString();
 
         if (
