@@ -11,6 +11,7 @@ import { rewriteScriptElementProto } from './HTMLScriptElement.prototype';
 import { patchMutationObserver } from './MutationObserver.prototype';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
 import { rewriteNodeProto } from './Node.prototype';
+import { rewritePostMessage } from './postMessage';
 import { rewriteRequest } from './Request';
 import { rewriteResponse } from './Response.prototype';
 import { rewriteXMLHttpRequest } from './XMLHttpRequest.prototype';
@@ -42,6 +43,7 @@ const windowRewriters: rewriterFuncParams[] = [
 
     // other uncategorized rewrites
     rewriteWindowFunction,
+    rewritePostMessage,
 
     // patches
     patchCreateTreeWalker,
