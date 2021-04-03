@@ -8,6 +8,7 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedProperties: obje
         'host',
         'hostname',
         'href',
+        'origin',
         'pathname',
         'port',
         'protocol',
@@ -21,6 +22,10 @@ function modifiedLocation(pademelonInstance: Pademelon, modifiedProperties: obje
                 return new URL(pademelonInstance.unrewriteUrl(targetWindow.location.href).url)[eachProp];
             },
             set(value) {
+                // read-only prop
+                if (eachProp === 'origin') {
+                    return;
+                }
                 // non refresh triggering props
                 if (eachProp === 'hash' || eachProp === 'search') {
                     targetWindow.location[eachProp] = value;
