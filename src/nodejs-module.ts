@@ -5,6 +5,7 @@ import { HtmlRewriterNodejs } from './rewriters/HtmlRewriterNodejs';
 
 interface PademelonNodejsOptions extends BasePademelonOptions {
     browserPademelonDistUrl: string;
+    browserImportScriptWorkerUrl: string;
 }
 
 /**

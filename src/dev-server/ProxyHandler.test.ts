@@ -9,6 +9,7 @@ describe('ProxyHandler', () => {
         pathnamePrefix: '/pademelonprefix/',
         windowProp: 'pademelonInstance',
         browserPademelonDistUrl: '/pademelon.min.js',
+        browserImportScriptWorkerUrl: '/pademelon.worker.min.js',
         useHttp: true
     });
     const proxyHandler = new ProxyHandler(pademelon);

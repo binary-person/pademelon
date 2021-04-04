@@ -15,6 +15,7 @@ import { rewriteNodeProto } from './Node.prototype';
 import { rewritePostMessage } from './postMessage';
 import { rewriteRequest } from './Request';
 import { rewriteResponse } from './Response.prototype';
+import { rewriteWorker } from './Worker';
 import { rewriteXMLHttpRequest } from './XMLHttpRequest.prototype';
 
 type rewriterFuncParams = (pademelonInstance: Pademelon) => void;
@@ -28,6 +29,7 @@ const windowRewriters: rewriterFuncParams[] = [
 
     // other native apis that utilize networking
     rewriteNavigatorSendBeacon,
+    rewriteWorker,
 
     // navigation
     rewriteHistory,

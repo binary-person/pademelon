@@ -8,7 +8,7 @@ import TypedEmitter from 'typed-emitter';
 import { modToType, modTypes } from '../mod';
 import { Pademelon } from '../nodejs-module';
 
-type passThroughModsType = 'raw' | 'api' | 'serviceworker' | 'webworker';
+type passThroughModsType = 'raw' | 'api' | 'serviceworker';
 type modifierModsType = Exclude<modTypes, passThroughModsType>;
 type mimeTypeModDictionaryType = {
     [contentType: string]: modTypes;
@@ -32,11 +32,12 @@ const mimeSubTypeModDictionary: mimeTypeModDictionaryType = {
 
 class ProxyHandler extends (EventEmitter as new () => TypedEmitter<ProxyHandlerEmitters>) {
     private pademelon: Pademelon;
-    private passthroughMods: passThroughModsType[] = ['raw', 'api', 'serviceworker', 'webworker'];
+    private passthroughMods: passThroughModsType[] = ['raw', 'api', 'serviceworker'];
     private modHandler: modHandlerType = {
         html: (responseStr, proxyPath = '') => this.pademelon.rewriteHTML(responseStr, proxyPath),
         javascript: (responseStr) => this.pademelon.rewriteJS(responseStr),
-        stylesheet: (responseStr, proxyPath = '') => this.pademelon.rewriteCSS(responseStr, proxyPath)
+        stylesheet: (responseStr, proxyPath = '') => this.pademelon.rewriteCSS(responseStr, proxyPath),
+        webworker: (responseStr) => this.pademelon.rewriteWorkerJS(responseStr)
     };
     constructor(pademelon: Pademelon) {
         super();

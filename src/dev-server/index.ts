@@ -13,6 +13,7 @@ import { ProxyHandler } from './ProxyHandler';
 import { Duplex } from 'stream';
 
 const pademelonDistFilePath = path.resolve(__dirname, '../../dist/pademelon.min.js');
+const pademelonimportScriptWorkerFilePath = path.resolve(__dirname, '../../dist/pademelon.worker.min.js');
 const publicFolder = path.resolve(__dirname, '../../src/dev-server/public');
 const port = 4444;
 
@@ -21,6 +22,7 @@ const pademelon = new Pademelon({
     pathnamePrefix: '/pademelonprefix/',
     windowProp: 'pademelonInstance',
     browserPademelonDistUrl: '/pademelon.min.js',
+    browserImportScriptWorkerUrl: '/pademelon.worker.min.js',
     useHttp: true
 });
 const proxyHandler = new ProxyHandler(pademelon);
@@ -86,6 +88,10 @@ const server = http.createServer((req, res) => {
 
     // copy over freshest generated webpack file
     fs.copyFileSync(pademelonDistFilePath, path.join(publicFolder, pademelon.options.browserPademelonDistUrl));
+    fs.copyFileSync(
+        pademelonimportScriptWorkerFilePath,
+        path.join(publicFolder, pademelon.options.browserImportScriptWorkerUrl)
+    );
 
     staticServer.serve(req, res);
 });

@@ -4,7 +4,9 @@
         "module": "CommonJS",
         "declaration": true,
         "outDir": "./lib",
-        "strict": true
+        "strict": true,
+        "lib": ["WebWorker", "DOM", "DOM.Iterable",],
+        "skipLibCheck": true
     },
     "include": [
         "src"
