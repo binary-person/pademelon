@@ -8,6 +8,7 @@ import { rewriteHistory } from './history';
 import { rewriteAnchorElementProto } from './HTMLAnchorElement.prototype';
 import { rewriteHTMLElementsAttribute } from './HTMLElementsAttribute';
 import { rewriteScriptElementProto } from './HTMLScriptElement.prototype';
+import { rewriteMessageEventProto } from './MessageEvent.prototype';
 import { patchMutationObserver } from './MutationObserver.prototype';
 import { rewriteNavigatorSendBeacon } from './navigator.sendBeacon';
 import { rewriteNodeProto } from './Node.prototype';
@@ -44,6 +45,7 @@ const windowRewriters: rewriterFuncParams[] = [
     // other uncategorized rewrites
     rewriteWindowFunction,
     rewritePostMessage,
+    rewriteMessageEventProto,
 
     // patches
     patchCreateTreeWalker,
