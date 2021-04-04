@@ -2,3 +2,4 @@ node_modules
 /lib
 /dist
 /src/dev-server/public/pademelon.min.js
+/src/dev-server/public/pademelon.worker.min.js
