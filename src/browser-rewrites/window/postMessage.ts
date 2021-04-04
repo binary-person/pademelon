@@ -8,7 +8,7 @@ function rewritePostMessage(pademelonInstance: Pademelon): void {
             try {
                 if (targetOrigin === '*' || selfOrigin === new URL(targetOrigin).origin) {
                     // replicate behavior of a real postMessage function: refuse to postMessage if targetOrigin != selfOrigin
-                    return [{ pademelonOrigin: targetOrigin, message }, window.location.origin, transfer] as const;
+                    return [{ pademelonOrigin: targetOrigin === '*' ? '*' : selfOrigin, message }, window.location.origin, transfer] as const;
                 } else {
                     return [null, (null as unknown) as string] as const; // dirty hack for disregarding postMessage call
                 }
