@@ -8,11 +8,14 @@ function rewriteScriptElementProto(pademelonInstance: Pademelon): void {
         }
     });
     // prevent integrity from being set since we are rewriting js anyway
-    rewriteGetterSetter(HTMLScriptElement.prototype, 'integrity', {
-        rewriteSetter: () => {
-            return '';
-        }
-    });
+    // take care of jsdom tester's lack of the integrity getter setter
+    if ('integrity' in HTMLScriptElement.prototype) {
+        rewriteGetterSetter(HTMLScriptElement.prototype, 'integrity', {
+            rewriteSetter: () => {
+                return '';
+            }
+        });
+    }
 }
 
 export { rewriteScriptElementProto };
