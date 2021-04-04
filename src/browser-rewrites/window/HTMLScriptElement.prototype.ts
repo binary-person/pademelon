@@ -7,6 +7,12 @@ function rewriteScriptElementProto(pademelonInstance: Pademelon): void {
             return pademelonInstance.rewriteJS(setValue);
         }
     });
+    // prevent integrity from being set since we are rewriting js anyway
+    rewriteGetterSetter(HTMLScriptElement.prototype, 'integrity', {
+        rewriteSetter: () => {
+            return '';
+        }
+    });
 }
 
 export { rewriteScriptElementProto };
